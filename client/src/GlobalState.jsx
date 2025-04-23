@@ -14,10 +14,11 @@ export const DataProvider = ({ children }) => {
   const refreshToken = async () => {
     try {
       const res = await axios.get('/user/refreshtoken');
-      console.log("Access token received:", res.data.accesstoken);
-      setToken(res.data.accesstoken); 
+      setToken(res.data.accesstoken);
     } catch (err) {
       console.error("Failed to refresh token:", err.response?.data?.msg || err.message);
+      localStorage.removeItem("firstLogin");
+      setToken(false);
     }
   };
   

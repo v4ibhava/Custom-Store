@@ -68,11 +68,14 @@ const userController = {
             const accesstoken = createAccessToken({ id: user._id });
             const refreshtoken = createRefreshToken({ id: user._id });
 
-            // Send tokens
+            // Set refresh token cookie with proper options
             res.cookie('refreshtoken', refreshtoken, {
                 httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', // Use secure in production
                 path: '/user/refreshtoken',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
             });
+
             res.json({ accesstoken });
         } catch (err) {
             return res.status(500).json({ msg: err.message });

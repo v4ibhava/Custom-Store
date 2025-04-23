@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { GlobalState } from '../../../GlobalState';
 import axios from 'axios';
 import './CreateProduct.css';
 
 const CreateProduct = () => {
   const state = useContext(GlobalState);
-  const { categories } = state.categoriesAPI || { categories: [] }; // Correct access
+  const [categories] = state.categoriesAPI.categories;
   const [token] = state.token;
 
   const [product, setProduct] = useState({
@@ -154,9 +154,9 @@ const CreateProduct = () => {
             required
           >
             <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
+            {categories && categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
               </option>
             ))}
           </select>

@@ -1,11 +1,31 @@
 import React, { useContext, useState } from 'react';
 import { GlobalState } from '../../../GlobalState';
 import { Link } from 'react-router-dom';
-import './Cart.css'
+import { CiTrash } from 'react-icons/ci';
+import axios from 'axios';
+import './Cart.css';
 
 function Cart() {
   const state = useContext(GlobalState);
   const [cart, setCart] = state.userAPI.cart;
+  const [token] = state.token;
+
+  // Function to remove item from cart
+  const removeItem = async (product) => {
+    if (window.confirm("Do you want to remove this item from cart?")) {
+      const newCart = cart.filter(item => item._id !== product._id);
+      setCart(newCart);
+      
+      // Save the updated cart to the backend
+      try {
+        await axios.put('/user/cart', { cart: newCart }, {
+          headers: { Authorization: token }
+        });
+      } catch (err) {
+        console.error("Error updating cart:", err.response?.data?.msg || err.message);
+      }
+    }
+  };
 
   // Function to increase quantity
   const increment = (product) => {
@@ -55,6 +75,12 @@ function Cart() {
             <div className="quantity-controls">
               <button onClick={() => decrement(product)}>-</button>
               <button onClick={() => increment(product)}>+</button>
+              <button 
+                className="delete-btn"
+                onClick={() => removeItem(product)}
+              >
+                <CiTrash size={20} />
+              </button>
             </div>
             <Link to="/cart" className="cart">
               Buy Now

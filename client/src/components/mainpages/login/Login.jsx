@@ -21,16 +21,14 @@ function Login() {
   const loginSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/user/login", { ...user });
+      const response = await axios.post("/user/login", { ...user });
       localStorage.setItem("firstLogin", true);
-      console.log(
-        "First Login set in localStorage:",
-        localStorage.getItem("firstLogin")
-      );
-
-      await refreshToken();
-
-      navigate("/");
+      
+      // Ensure we have the access token before proceeding
+      if (response.data.accesstoken) {
+        await refreshToken();
+        navigate("/");
+      }
     } catch (err) {
       alert(err.response?.data?.msg || "Login failed. Please try again.");
     }

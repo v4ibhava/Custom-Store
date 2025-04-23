@@ -5,8 +5,8 @@ const UserAPI = (token) => {
   const [isLogged, setIsLogged] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
 
-  // Fetch user information when token is present
   useEffect(() => {
     if (token) {
       const getUser = async () => {
@@ -17,17 +17,14 @@ const UserAPI = (token) => {
 
           setIsLogged(true);
           res.data.role === 1 ? setIsAdmin(true) : setIsAdmin(false);
-          console.log("User information received:", res.data);
+          setUser(res.data);
 
-          // Fetch the user's cart from the backend
           const cartRes = await axios.get('/user/cart', {
             headers: { Authorization: token },
           });
-          setCart(cartRes.data);
-          console.log("Cart retrieved from backend:", cartRes.data);
+          setCart(cartRes.data || []);
         } catch (err) {
           console.error("Error fetching user information:", err.response?.data?.msg);
-          alert(err.response?.data?.msg);
         }
       };
       getUser();
@@ -62,12 +59,25 @@ const UserAPI = (token) => {
     }
   };
 
+  const updateCart = async (cart, token) => {
+    try {
+      await axios.put('/user/cart', { cart }, {
+        headers: { Authorization: token }
+      });
+    } catch (err) {
+      throw new Error(err.response?.data?.msg || "Error updating cart");
+    }
+  };
+
   // Return the state and functions
   return {
     isLogged: [isLogged, setIsLogged],
     isAdmin: [isAdmin, setIsAdmin],
     cart: [cart, setCart],
     addCart: addCart,
+    updateCart: updateCart,
+    token: [token],
+    user: [user, setUser],
   };
 };
 

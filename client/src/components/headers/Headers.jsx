@@ -48,8 +48,8 @@ function Headers() {
     <>
       {admin ? adminRouter() : (
         <li>
-          <Link to="/history" className="header-link">
-            History
+          <Link to="/profile" className="header-link">
+            Profile
           </Link>
         </li>
       )}
@@ -109,7 +109,7 @@ function Headers() {
 
         {!admin && logged && (
           <div className="cart-icon">
-            <span>{cart.length}</span>
+            <span>{Array.isArray(cart[0]) ? cart[0].length : 0}</span>
             <Link to="/cart">
               <RiShoppingCart2Fill size={25} className="header-link" />
             </Link>

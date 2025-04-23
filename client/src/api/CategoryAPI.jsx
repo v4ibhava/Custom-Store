@@ -4,21 +4,22 @@ import axios from "axios";
 const CategoryAPI = () => {
   const [categories, setCategories] = useState([]);
 
+  const getCategories = async () => {
+    try {
+      const res = await axios.get("/api/category");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err.response?.data?.msg || err.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get("/api/category");
-        setCategories(res.data); // Ensure `res.data` is an array
-      } catch (err) {
-        console.error("Error fetching categories:", err.response?.data?.msg || err.message);
-      }
-    };
-    fetchCategories();
+    getCategories();
   }, []);
 
   return {
-    categories,
-    setCategories, // Optional: allows dynamic updates to categories
+    categories: [categories, setCategories],
+    getCategories: getCategories
   };
 };
 
