@@ -4,6 +4,7 @@ import axios from 'axios';
 import { GlobalState } from '../../../GlobalState';
 import './Profile.css';
 import UserHistory from '../history/UserHistory';
+import UserAddress from './useraddress/UserAddress';
 
 const Profile = () => {
   const state = useContext(GlobalState);
@@ -50,7 +51,7 @@ const Profile = () => {
           </div>
         );
       case 'addresses':
-        return <div className="content-section">Manage Addresses Content</div>;
+        return <div className="content-section"><UserAddress/></div>;
       case 'upi':
         return <div className="content-section">Saved UPI Content</div>;
       case 'cards':

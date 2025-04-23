@@ -12,4 +12,10 @@ router.get('/information', auth, userController.getUser);
 router.put('/cart', auth, userController.saveCart);
 router.get('/cart', auth, userController.getCart);
 
+// New address routes
+router.get('/addresses', auth, userController.getAddresses);
+router.post('/address', auth, userController.addAddress);
+router.put('/address/:addressId', auth, userController.updateAddress);
+router.delete('/address/:addressId', auth, userController.deleteAddress);
+
 module.exports = router;

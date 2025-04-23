@@ -1,29 +1,57 @@
 const mongoose = require('mongoose');
 
+const addressSchema = new mongoose.Schema({
+    street: {
+        type: String,
+        required: true,
+    },
+    city: {
+        type: String,
+        required: true,
+    },
+    state: {
+        type: String,
+        required: true,
+    },
+    postalCode: {
+        type: String,
+        required: true,
+    },
+    country: {
+        type: String,
+        required: true,
+    },
+    isDefault: {
+        type: Boolean,
+        default: false,
+    }
+});
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true, // Fixed typo: 'require' -> 'required'
+        required: true,
     },
     email: {
         type: String,
         unique: true,
-        required: true, // Added required since email is essential
+        required: true,
     },
     password: {
         type: String,
-        required: true, // Fixed typo: 'require' -> 'required'
+        required: true,
     },
     role: {
         type: Number,
-        default: 0, // 0 for normal user, 1 for admin
+        default: 0,
     },
     cart: {
         type: Array,
-        default: [], // Cart defaults to an empty array
+        default: [],
     },
+    addresses: [addressSchema], // Add addresses array
 }, {
-    timestamps: true, // Fixed typo: 'Timestamp' -> 'timestamps'
+    timestamps: true,
 });
 
 module.exports = mongoose.model('Users', userSchema);
