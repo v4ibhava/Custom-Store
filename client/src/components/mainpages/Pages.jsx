@@ -11,6 +11,8 @@ import NotFound from './utils/not_found/NotFound';
 import Categories from './categories/CreateCategory';
 import CreateProduct from './createProduct/CreateProduct';
 import Profile from './userProfile/Profile';
+import AdminProfile from './adminProfile/AdminProfile'
+import Checkout from './checkout/checkout';
 
 function Pages() {
     return (
@@ -25,6 +27,13 @@ function Pages() {
             <Route path="/history/:id" element={<OrderDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path='/profile' element={<Profile />} />
+            <Route path="/AdminProfile" element={<AdminProfile />} />
+            <Route path="/admin/:section/:subsection" element={<AdminProfile />} />
+            <Route path='/checkout' element={<Checkout />} />
+
+
+
+            {/* Not Found Page */}
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

@@ -1,9 +1,9 @@
 import React from 'react'
 
-const NotFound = () => {
+function NotFound() {
   return (
     <div>
-      Not Found 404
+      Page not found
     </div>
   )
 }

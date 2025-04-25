@@ -1,41 +1,73 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { GlobalState } from "../../../../GlobalState";
+import axios from 'axios';
 import "./DetailProduct.css";
 
 const DetailProduct = () => {
-  const { id } = useParams(); // Retrieve the id from the route
-  const state = useContext(GlobalState); // Access the global state
-  const products = state.productAPI.products; // Get the products array from global state
-  const [detailProduct, setDetailProduct] = useState(null); // Initialize detailProduct state
+  const { id } = useParams();
+  const state = useContext(GlobalState);
+  const [detailProduct, setDetailProduct] = useState(null);
+  const [isLogged] = state.userAPI.isLogged;
+  const addCart = state.userAPI.addCart;
+  const [token] = state.token;
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    if (id && Array.isArray(products)) {
-      const selectedProduct = products.find((product) => product._id === id); // Find product by _id
-      setDetailProduct(selectedProduct); // Set the detail product state
-    }
-  }, [id, products]);
+    const getProduct = async () => {
+      try {
+        const res = await axios.get(`/api/products/${id}`);
+        setDetailProduct(res.data);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        alert("Failed to load product details");
+      }
+    };
 
-  if (!detailProduct) return <div>Loading product details...</div>; // Show fallback UI during loading
+    if (id) {
+      getProduct();
+    }
+  }, [id]);
+
+  const handleBuyClick = async (e) => {
+    e.preventDefault();
+    if (!isLogged) {
+      alert("Please login to continue shopping.");
+      // navigate("/login");
+      return;
+    }
+
+    try {
+      await addCart(detailProduct);
+      navigate("/cart");
+    } catch (err) {
+      console.error("Error adding product to cart:", err);
+      alert("Failed to add product to cart. Please try again.");
+    }
+  };
+
+  if (!detailProduct) return <div>Loading product details...</div>;
 
   return (
     <div className="detail">
-  <img
-    src={detailProduct.images?.url || "/default-image.jpg"}
-    alt={detailProduct.title || "Product"}
-  />
-  <div className="product-info">
-    <h2>{detailProduct.title || "No Title Available"}</h2>
-    <p>{detailProduct.content || "No additional content available."}</p>
-    <span>{detailProduct.price || "N/A"}</span>
-    <p>{detailProduct.description || "No description available."}</p>
-    <p>Sold: {detailProduct.sold || 0}</p>
-    <Link to="/cart" className="cart">
-      Buy Now
-    </Link>
-  </div>
-</div>
-
+      <img
+        src={detailProduct.images?.url || "/default-image.jpg"}
+        alt={detailProduct.title || "Product"}
+      />
+      <div className="product-info">
+        <h2>{detailProduct.title || "No Title Available"}</h2>
+        <p>{detailProduct.content || "No additional content available."}</p>
+        <span>₹{detailProduct.price || "N/A"}</span>
+        <p>{detailProduct.description || "No description available."}</p>
+        <p>Sold: {detailProduct.sold || 0}</p>
+        <button 
+          onClick={handleBuyClick}
+          className="cart"
+        >
+          Buy Now
+        </button>
+      </div>
+    </div>
   );
 };
 

@@ -1,123 +1,129 @@
-import React, { useContext, useState, useCallback } from "react";
-import { RiMenuFill, RiCloseFill, RiShoppingCart2Fill } from "react-icons/ri";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { GlobalState } from "../../GlobalState";
-import axios from "axios";
-import "./Headers.css";
+import { FaUser } from "react-icons/fa";
+import { RiShoppingCart2Fill } from "react-icons/ri";
+import { BiBell } from "react-icons/bi";
+import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 
-function Headers() {
+export default function Headers() {
   const state = useContext(GlobalState);
-
   const {
     isLogged = [false, () => {}],
     isAdmin = [false, () => {}],
     cart = [],
   } = state?.userAPI || {};
-  const [logged, setLogged] = isLogged;
-  const [admin, setAdmin] = isAdmin;
+  const [logged] = isLogged;
+  const [admin] = isAdmin;
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  const cartItems = Array.isArray(cart[0]) ? cart[0] : cart;
+  const cartCount = cartItems.length;
 
-  const logoutUser = useCallback(async () => {
-    try {
-      await axios.get("/user/logout");
-      localStorage.clear();
-      setAdmin(false);
-      setLogged(false);
-    } catch (err) {
-      console.error("Logout failed:", err.message);
-    }
-  }, [setAdmin, setLogged]);
-
-  const adminRouter = () => (
-    <>
-      <li>
-        <Link to="/create-product" className="header-link">
-          Create Products
-        </Link>
-      </li>
-      <li>
-        <Link to="/category" className="header-link">
-          Category
-        </Link>
-      </li>
-    </>
-  );
-
-  const loggedRouter = () => (
-    <>
-      {admin ? adminRouter() : (
-        <li>
-          <Link to="/profile" className="header-link">
-            Profile
-          </Link>
-        </li>
-      )}
-      <li>
-        <Link to="/" onClick={logoutUser} className="header-link">
-          Logout
-        </Link>
-      </li>
-    </>
-  );
-
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
-
-  return (
-    <header className="header">
-      <div className="header-container">
-        <div className="logo">
-          {!menuOpen ? (
-            <RiMenuFill
-              size={30}
-              className="menu-icon"
-              onClick={toggleMenu}
-            />
-          ) : (
-            <RiCloseFill
-              size={30}
-              className="menu-icon"
-              onClick={toggleMenu}
-            />
-          )}
-          <h1>
-            <Link to="/" className="header-link">
-              {admin ? "Admin Dashboard" : "Liver Store"}
-            </Link>
-          </h1>
-        </div>
-
-        <ul className={`menu ${menuOpen ? "open" : ""}`}>
-          <li>
-            <Link to="/" className="header-link">
-              {admin ? "Products" : "Liver"}
-            </Link>
-          </li>
-
-          {logged && loggedRouter()}
-
-          {!logged && (
-            <li>
-              <Link to="/login" className="header-link">
-                Login or Register
-              </Link>
-            </li>
-          )}
-        </ul>
-
-        {!admin && logged && (
-          <div className="cart-icon">
-            <span>{Array.isArray(cart[0]) ? cart[0].length : 0}</span>
-            <Link to="/cart">
-              <RiShoppingCart2Fill size={25} className="header-link" />
+  // Admin Header
+  if (admin) {
+    return (
+      <nav className="bg-base-100 shadow-md px-4 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-1">
+            <Link to="/" className="text-2xl font-extrabold text-pink-600">
+              Cake Avenue
             </Link>
           </div>
-        )}
+          {/* CENTER */}
+          <div className="flex-1 w-full max-w-2xl mx-4">
+      
+            <input
+              type="text"
+              placeholder="Search orders, products, or users..."
+              className="
+                w-full h-10 px-3 py-2.5 rounded-md border border-gray-300 bg-white shadow-sm focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 sm:text-sm
+              "
+            />
+          </div>
+          {/* // Right Side */}
+
+          <div className="flex-1 flex justify-end items-center gap-4">
+              <BiBell size={24} className=" text-zinc-950 cursor-pointer hover:text-pink-500"/>
+      
+            <Link
+              to="/AdminProfile"
+            >
+              <FaUser size={20} className="hover:text-pink-500" />
+            </Link>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  // Regular User Header
+  return (
+    <nav className="bg-base-100 shadow-md px-4 lg:px-8">
+      <div className="flex items-center justify-between h-16">
+        <div className="flex-1">
+          <Link to="/" className="text-2xl font-extrabold text-pink-600">
+            Cake Avenue
+          </Link>
+        </div>
+
+        <div className="flex-1 w-full max-w-2xl mx-1 relative">
+  <input
+    type="text"
+    placeholder="Craving cake? Type your sweet tooth's wish… 🍰"
+    className="
+      peer w-full h-8
+      border border-gray-200 rounded pl-10
+      focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-200
+      transition text-xs
+      placeholder-pink-300 italic
+    "
+  />
+  <span
+    aria-hidden="true"
+    className="hidden peer-focus:block absolute top-1/2 left-2 transform -translate-y-1/2 text-pink-400"
+  >
+    <HiMiniMagnifyingGlass />
+  </span>
+</div>
+
+
+
+
+
+        <div className="flex-1 flex justify-end items-center gap-4">
+          {logged ? (
+            <>
+              <Link 
+                to="/profile" 
+                className="p-2 hover:bg-gray-100 rounded-full transition"
+                aria-label="Your Profile"
+              >
+                <FaUser size={20} className="text-gray-600" />
+              </Link>
+              <Link
+                to="/cart"
+                className="relative p-2 hover:bg-gray-100 rounded-full transition"
+                aria-label="View Cart"
+              >
+                <RiShoppingCart2Fill size={20} className="text-gray-600" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </>
+          ) : (
+            <Link 
+              to="/login" 
+              className="group relative inline-block text-gray-600 hover:text-pink-600"
+            >
+              Sign In
+              <span className="absolute left-0 -bottom-1 block h-0.5 w-0 bg-current transition-all duration-300 ease-out group-hover:w-full" />
+            </Link>
+          )}
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }
-
-export default Headers;
