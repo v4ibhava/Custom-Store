@@ -13,6 +13,10 @@ import CreateProduct from './createProduct/CreateProduct';
 import Profile from './userProfile/Profile';
 import AdminProfile from './adminProfile/AdminProfile'
 import Checkout from './checkout/checkout';
+import EditProduct from './editproduct/EditProduct';
+import SavedUPI from './userProfile/SavedUPI';
+import SavedCards from './userProfile/SavedCards';
+
 
 function Pages() {
     return (
@@ -30,6 +34,9 @@ function Pages() {
             <Route path="/AdminProfile" element={<AdminProfile />} />
             <Route path="/admin/:section/:subsection" element={<AdminProfile />} />
             <Route path='/checkout' element={<Checkout />} />
+            <Route path='/edit-product/:id' element={<EditProduct />} />
+            <Route path='/saved-upi' element={<SavedUPI />} />
+            <Route path='/saved-card' element={<SavedCards />} />
 
 
 

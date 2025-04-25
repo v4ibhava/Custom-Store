@@ -1,25 +1,17 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import categories from "../data/CategoryList";
 
 const CategoryAPI = () => {
-  const [categories, setCategories] = useState([]);
-
-  const getCategories = async () => {
-    try {
-      const res = await axios.get("/api/category");
-      setCategories(res.data);
-    } catch (err) {
-      console.error("Error fetching categories:", err.response?.data?.msg || err.message);
-    }
-  };
+  const [categoriesList, setCategoriesList] = useState([]);
 
   useEffect(() => {
-    getCategories();
+    // Using the predefined categories instead of fetching
+    setCategoriesList(categories);
   }, []);
 
   return {
-    categories: [categories, setCategories],
-    getCategories: getCategories
+    categories: [categoriesList, setCategoriesList],
+    getCategories: () => setCategoriesList(categories)
   };
 };
 

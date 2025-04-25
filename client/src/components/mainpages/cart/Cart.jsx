@@ -1,7 +1,7 @@
 // Make sure you have installed react-icons:
 // npm install react-icons
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { GlobalState } from '../../../GlobalState';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -35,27 +35,51 @@ function Cart() {
     }
   };
 
-  // Increment quantity
-  const increment = (product) => {
-    setCart(
-      cart.map(item =>
-        item._id === product._id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
+  // Increment quantity and sync with server
+  const increment = async (product) => {
+    const newCart = cart.map(item =>
+      item._id === product._id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
     );
+    
+    setCart(newCart);
+    
+    try {
+      await axios.put(
+        '/user/cart',
+        { cart: newCart },
+        { headers: { Authorization: token } }
+      );
+    } catch (err) {
+      console.error("Error updating cart:", err.response?.data?.msg || err.message);
+      // Rollback on error
+      setCart(cart);
+    }
   };
 
-  // Decrement quantity (min 1)
-  const decrement = (product) => {
-    if (product.quantity > 1) {
-      setCart(
-        cart.map(item =>
-          item._id === product._id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        )
+  // Decrement quantity and sync with server
+  const decrement = async (product) => {
+    if (product.quantity <= 1) return;
+
+    const newCart = cart.map(item =>
+      item._id === product._id
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
+    );
+    
+    setCart(newCart);
+    
+    try {
+      await axios.put(
+        '/user/cart',
+        { cart: newCart },
+        { headers: { Authorization: token } }
       );
+    } catch (err) {
+      console.error("Error updating cart:", err.response?.data?.msg || err.message);
+      // Rollback on error
+      setCart(cart);
     }
   };
 

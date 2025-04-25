@@ -27,6 +27,44 @@ const addressSchema = new mongoose.Schema({
     }
 });
 
+const cardSchema = new mongoose.Schema({
+    cardNumber: {
+        type: String,
+        required: true,
+    },
+    cardHolderName: {
+        type: String,
+        required: true,
+    },
+    expiryMonth: {
+        type: String,
+        required: true,
+    },
+    expiryYear: {
+        type: String,
+        required: true,
+    },
+    isDefault: {
+        type: Boolean,
+        default: false,
+    }
+});
+
+const upiSchema = new mongoose.Schema({
+    upiId: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    isDefault: {
+        type: Boolean,
+        default: false,
+    }
+});
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -49,7 +87,9 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: [],
     },
-    addresses: [addressSchema], // Add addresses array
+    addresses: [addressSchema],
+    cards: [cardSchema],
+    upis: [upiSchema]
 }, {
     timestamps: true,
 });

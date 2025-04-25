@@ -224,6 +224,125 @@ const userController = {
             return res.status(500).json({ msg: err.message });
         }
     },
+    saveCart: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found." });
+    
+            // Update the user's cart
+            user.cart = req.body.cart;
+            await user.save();
+    
+            res.json({ msg: "Cart updated successfully." });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    // Card Management
+    addCard: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            const maskedCardNumber = req.body.cardNumber.replace(/\d(?=\d{4})/g, "*");
+            
+            if (user.cards.length === 0) {
+                req.body.isDefault = true;
+            }
+
+            if (req.body.isDefault) {
+                user.cards.forEach(card => card.isDefault = false);
+            }
+
+            user.cards.push({
+                ...req.body,
+                cardNumber: maskedCardNumber
+            });
+            await user.save();
+
+            res.json({ msg: "Card added successfully", cards: user.cards });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    deleteCard: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            const cardIndex = user.cards.findIndex(
+                card => card._id.toString() === req.params.cardId
+            );
+
+            if (cardIndex === -1) {
+                return res.status(404).json({ msg: "Card not found" });
+            }
+
+            // If deleting default card, make the first remaining card default
+            const wasDefault = user.cards[cardIndex].isDefault;
+            user.cards.splice(cardIndex, 1);
+            
+            if (wasDefault && user.cards.length > 0) {
+                user.cards[0].isDefault = true;
+            }
+
+            await user.save();
+            res.json({ msg: "Card deleted successfully", cards: user.cards });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    // UPI Management
+    addUPI: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            // If this is the first UPI, make it default
+            if (user.upis.length === 0) {
+                req.body.isDefault = true;
+            }
+
+            // If new UPI is set as default, unset any existing default
+            if (req.body.isDefault) {
+                user.upis.forEach(upi => upi.isDefault = false);
+            }
+
+            user.upis.push(req.body);
+            await user.save();
+
+            res.json({ msg: "UPI added successfully", upis: user.upis });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    deleteUPI: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            const upiIndex = user.upis.findIndex(
+                upi => upi._id.toString() === req.params.upiId
+            );
+
+            if (upiIndex === -1) {
+                return res.status(404).json({ msg: "UPI not found" });
+            }
+
+            // If deleting default UPI, make the first remaining UPI default
+            const wasDefault = user.upis[upiIndex].isDefault;
+            user.upis.splice(upiIndex, 1);
+            
+            if (wasDefault && user.upis.length > 0) {
+                user.upis[0].isDefault = true;
+            }
+
+            await user.save();
+            res.json({ msg: "UPI deleted successfully", upis: user.upis });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    }
 };
 
 // Utility functions
@@ -235,4 +354,5 @@ const createRefreshToken = (payload) => {
     return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 };
 
+// Export the entire userController object
 module.exports = userController;

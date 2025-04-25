@@ -2,6 +2,7 @@ import React, { useState, useContext, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GlobalState } from '../../../GlobalState';
+import OrderHistory from '../history/UserHistory';
 import { 
   BiBarChart,
   BiShoppingBag,
@@ -13,7 +14,7 @@ const AdminProfile = () => {
   const state = useContext(GlobalState);
   const [, setIsLogged] = state.userAPI.isLogged;
   const [, setIsAdmin] = state.userAPI.isAdmin;
-  const [activeSection, setActiveSection] = useState('products');
+  const [activeSection, setActiveSection] = useState('orders');
   const navigate = useNavigate();
 
   const logoutUser = useCallback(async () => {
@@ -30,6 +31,12 @@ const AdminProfile = () => {
 
   const menuItems = [
     {
+      id: 'orders',
+      label: 'Orders',
+      icon: BiShoppingBag,
+      subItems: ['All Orders', 'Pending', 'Completed']
+    },
+    {
       id: 'products',
       label: 'Products',
       icon: BiShoppingBag,
@@ -39,7 +46,7 @@ const AdminProfile = () => {
       id: 'sales',
       label: 'Sales',
       icon: BiBarChart,
-      subItems: ['Orders', 'Revenue', 'Reports']
+      subItems: ['Revenue', 'Reports']
     },
     {
       id: 'reviews',
@@ -51,45 +58,89 @@ const AdminProfile = () => {
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'orders':
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <BiShoppingBag className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-semibold">Order Management</h2>
+            </div>
+            <OrderHistory isAdmin={true} />
+          </div>
+        );
       case 'products':
-        return <div>Products Management Content</div>;
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <BiShoppingBag className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-semibold">Products Management</h2>
+            </div>
+            {/* Add your products management component here */}
+          </div>
+        );
       case 'sales':
-        return <div>Sales Analytics Content</div>;
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <BiBarChart className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-semibold">Sales Analytics</h2>
+            </div>
+            {/* Add your sales analytics component here */}
+          </div>
+        );
       case 'reviews':
-        return <div>Reviews Management Content</div>;
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <BiStar className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-semibold">Reviews Management</h2>
+            </div>
+            {/* Add your reviews management component here */}
+          </div>
+        );
       default:
-        return <div>Select a section</div>;
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <BiShoppingBag className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-semibold">Select an option</h2>
+            </div>
+            <p className="text-gray-600">Please select an option from the sidebar.</p>
+          </div>
+        );
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg flex flex-col">
-        <div className="p-6">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800">Admin Panel</h2>
-          <p className="text-sm text-gray-600 mt-1">Manage your store</p>
         </div>
         
-        <nav className="flex-1 mt-4">
-          {menuItems.map((item) => (
-            <div key={item.id} className="px-4 py-2">
-              <button
-                onClick={() => setActiveSection(item.id)}
-                className={`
-                  w-full flex items-center px-4 py-2 text-sm rounded-lg
-                  ${activeSection === item.id 
-                    ? 'bg-pink-100 text-pink-600' 
-                    : 'text-gray-600 hover:bg-gray-50'
-                  }
-                `}
-              >
-                <item.icon className="w-5 h-5 mr-3" />
-                {item.label}
-              </button>
-              
-              {/* Sub-items */}
-              {item.subItems.length > 0 && (
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto">
+          <div className="px-3 py-4 space-y-1">
+            {menuItems.map((item) => (
+              <div key={item.id} className="mb-4">
+                <button
+                  onClick={() => setActiveSection(item.id)}
+                  className={`
+                    w-full flex items-center px-4 py-2.5 text-sm rounded-lg
+                    transition-all duration-200 ease-in-out
+                    ${activeSection === item.id 
+                      ? 'bg-pink-50 text-pink-600' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                    }
+                  `}
+                >
+                  <item.icon className="w-5 h-5 mr-3" />
+                  {item.label}
+                </button>
+                
+                {/* Sub-items */}
                 <div className="ml-9 mt-2 space-y-1">
                   {item.subItems.map((subItem) => (
                     <Link
@@ -97,16 +148,17 @@ const AdminProfile = () => {
                       to={`/admin/${item.id}/${subItem.toLowerCase().replace(' ', '-')}`}
                       className="
                         block px-4 py-2 text-sm text-gray-600
-                        hover:text-pink-600 hover:bg-pink-50 rounded-lg
+                        hover:text-pink-600 hover:bg-pink-50 
+                        rounded-lg transition-colors duration-200
                       "
                     >
                       {subItem}
                     </Link>
                   ))}
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </nav>
 
         {/* Logout Button */}
@@ -114,7 +166,7 @@ const AdminProfile = () => {
           <button
             onClick={logoutUser}
             className="
-              w-full flex items-center px-4 py-2 text-sm
+              w-full flex items-center px-4 py-2.5 text-sm
               text-red-600 hover:bg-red-50 rounded-lg
               transition-colors duration-200
             "
@@ -128,7 +180,7 @@ const AdminProfile = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             {renderContent()}
           </div>
         </div>
@@ -138,5 +190,7 @@ const AdminProfile = () => {
 };
 
 export default AdminProfile;
+
+
 
 

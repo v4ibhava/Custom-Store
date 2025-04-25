@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Add useNavigate
 import { GlobalState } from "../../GlobalState";
 import { FaUser } from "react-icons/fa";
 import { RiShoppingCart2Fill } from "react-icons/ri";
@@ -8,6 +8,7 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 
 export default function Headers() {
   const state = useContext(GlobalState);
+  const navigate = useNavigate(); // Add this
   const {
     isLogged = [false, () => {}],
     isAdmin = [false, () => {}],
@@ -18,6 +19,17 @@ export default function Headers() {
 
   const cartItems = Array.isArray(cart[0]) ? cart[0] : cart;
   const cartCount = cartItems.length;
+
+  // Add search handler
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const searchTerm = e.target.value;
+    if (searchTerm.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchTerm)}`);
+    } else {
+      navigate('/');
+    }
+  };
 
   // Admin Header
   if (admin) {
@@ -38,6 +50,7 @@ export default function Headers() {
               className="
                 w-full h-10 px-3 py-2.5 rounded-md border border-gray-300 bg-white shadow-sm focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 sm:text-sm
               "
+              onChange={handleSearch}
             />
           </div>
           {/* // Right Side */}
@@ -77,10 +90,11 @@ export default function Headers() {
       transition text-xs
       placeholder-pink-300 italic
     "
+    onChange={handleSearch}
   />
   <span
     aria-hidden="true"
-    className="hidden peer-focus:block absolute top-1/2 left-2 transform -translate-y-1/2 text-pink-400"
+    className="absolute top-1/2 left-2 transform -translate-y-1/2 text-pink-400"
   >
     <HiMiniMagnifyingGlass />
   </span>

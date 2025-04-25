@@ -1,54 +1,69 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 function ProductList({ product, isAdmin }) {
   const navigate = useNavigate();
 
   const handleProductClick = () => {
-    navigate(`/detail/${product._id}`);
+    if (!isAdmin) {
+      navigate(`/detail/${product._id}`);
+    }
   };
 
   return (
     <div 
-      className="card w-full bg-base-100 cursor-pointer hover:shadow-lg transition-shadow duration-300"
+      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow 
+        ${!isAdmin ? 'cursor-pointer' : ''}`}
       onClick={handleProductClick}
     >
-      <figure className="px-4 pt-4">
+      <div className="p-4">
         <img 
           src={product.images.url} 
-          alt={product.title} 
-          className="rounded-xl h-48 w-full object-cover"
+          alt={product.title}
+          className="w-full h-48 object-cover rounded-md mb-4"
         />
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title text-primary">{product.title}</h2>
-        <div className="badge badge-secondary font-bold">
-          ₹{product.price}
-        </div>
-        <p className="text-base-content/70 line-clamp-2">{product.description}</p>
         
-        {/* Stats */}
-        <div className="stats stats-vertical shadow bg-base-200 my-2">
-          {/* <div className="stat">
-            <div className="stat-title">Category</div>
-            <div className="stat-value text-sm">{product.category}</div>
-          </div> */}
-          {/* <div className="stat">
-            <div className="stat-title">Stock</div>
-            <div className="stat-value text-sm">{product.stock}</div>
-          </div> */}
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">{product.title}</h2>
+        <p className="text-sm text-gray-600 line-clamp-2 mb-4">{product.description}</p>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-xl font-bold text-pink-600">₹{product.price}</span>
+          
+          {isAdmin && (
+            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+              <Link 
+                to={`/edit-product/${product._id}`}
+                className="p-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors"
+              >
+                <FiEdit className="w-5 h-5" />
+              </Link>
+              <button 
+                onClick={() => deleteProduct(product._id)}
+                className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                <FiTrash2 className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Admin Checkbox */}
         {isAdmin && (
-          <div className="form-control" onClick={e => e.stopPropagation()}>
-            <label className="label cursor-pointer">
-              <span className="label-text">Featured</span>
-              <input 
-                type="checkbox" 
-                className="checkbox checkbox-primary" 
-                defaultChecked={product.checked}
-              />
+          <div 
+            className="mt-4 flex items-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input 
+              type="checkbox" 
+              id={`featured-${product._id}`}
+              defaultChecked={product.checked}
+              className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+            />
+            <label 
+              htmlFor={`featured-${product._id}`}
+              className="text-sm text-gray-600"
+            >
+              Featured Product
             </label>
           </div>
         )}
