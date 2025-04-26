@@ -1,4 +1,4 @@
-# E-com
+# E-com Platform
 
 A modern e-commerce platform built with React and Vite, featuring user authentication, product management, and shopping cart functionality.
 
