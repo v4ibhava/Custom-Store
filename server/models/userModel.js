@@ -65,6 +65,27 @@ const upiSchema = new mongoose.Schema({
     }
 });
 
+const orderHistorySchema = new mongoose.Schema({
+    orderId: {
+        type: String,
+        required: true
+    },
+    items: [{
+        productId: String,
+        title: String,
+        price: Number,
+        quantity: Number
+    }],
+    total: {
+        type: Number,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -89,7 +110,8 @@ const userSchema = new mongoose.Schema({
     },
     addresses: [addressSchema],
     cards: [cardSchema],
-    upis: [upiSchema]
+    upis: [upiSchema],
+    orderHistory: [orderHistorySchema]
 }, {
     timestamps: true,
 });

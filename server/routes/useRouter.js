@@ -19,11 +19,17 @@ router.put('/address/:addressId', auth, userController.updateAddress);
 router.delete('/address/:addressId', auth, userController.deleteAddress);
 
 // Card routes
+router.get('/cards', auth, userController.getCards);
 router.post('/card', auth, userController.addCard);
 router.delete('/card/:cardId', auth, userController.deleteCard);
 
 // UPI routes
+router.get('/upi', auth, userController.getUPIs);
 router.post('/upi', auth, userController.addUPI);
 router.delete('/upi/:upiId', auth, userController.deleteUPI);
+
+// Order routes
+router.post('/order', auth, userController.addOrder);
+router.get('/order-history', auth, userController.getOrderHistory);
 
 module.exports = router;

@@ -21,7 +21,7 @@ function ProductList({ product, isAdmin }) {
         <img 
           src={product.images.url} 
           alt={product.title}
-          className="w-full h-48 object-cover rounded-md mb-4"
+          className="w-full h-48 object-cover rounded-md mb-1"
         />
         
         <h2 className="text-lg font-semibold text-gray-900 mb-2">{product.title}</h2>

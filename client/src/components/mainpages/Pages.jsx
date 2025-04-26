@@ -11,11 +11,14 @@ import NotFound from './utils/not_found/NotFound';
 import Categories from './categories/CreateCategory';
 import CreateProduct from './createProduct/CreateProduct';
 import Profile from './userProfile/Profile';
-import AdminProfile from './adminProfile/AdminProfile'
+import AdminProfile from './adminProfile/AdminProfile';
 import Checkout from './checkout/checkout';
 import EditProduct from './editproduct/EditProduct';
+import ReceiptPage from './checkout/ReceiptPage';
 import SavedUPI from './userProfile/SavedUPI';
 import SavedCards from './userProfile/SavedCards';
+import UserAddress from './userProfile/useraddress/UserAddress';
+
 
 
 function Pages() {
@@ -35,8 +38,10 @@ function Pages() {
             <Route path="/admin/:section/:subsection" element={<AdminProfile />} />
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/edit-product/:id' element={<EditProduct />} />
+            <Route path='/receipt' element={<ReceiptPage />} />
             <Route path='/saved-upi' element={<SavedUPI />} />
             <Route path='/saved-card' element={<SavedCards />} />
+            <Route path='/user-address' element={<UserAddress />} />
 
 
 

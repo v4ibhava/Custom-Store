@@ -112,14 +112,14 @@ export default function Headers() {
                 className="p-2 hover:bg-gray-100 rounded-full transition"
                 aria-label="Your Profile"
               >
-                <FaUser size={20} className="text-gray-600" />
+                <FaUser size={24} className="text-gray-600" />
               </Link>
               <Link
                 to="/cart"
                 className="relative p-2 hover:bg-gray-100 rounded-full transition"
                 aria-label="View Cart"
               >
-                <RiShoppingCart2Fill size={20} className="text-gray-600" />
+                <RiShoppingCart2Fill size={24} className="text-gray-600" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                     {cartCount}

@@ -8,12 +8,12 @@ import "./index.css";
 function App() {
   return (
     <DataProvider>
-    <Router>
-      <div className="App">
-        <Headers />
-        <Pages />
-      </div>
-    </Router>
+      <Router>
+        <div className="App">
+          <Headers />
+          <Pages />
+        </div>
+      </Router>
     </DataProvider>
   );
 }

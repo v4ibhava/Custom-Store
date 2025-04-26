@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GlobalState } from '../../../GlobalState';
-import OrderHistory from '../history/UserHistory';
+import OrderHistory from '../history/OrderHistory';
 import { 
   BiBarChart,
   BiShoppingBag,
@@ -190,6 +190,7 @@ const AdminProfile = () => {
 };
 
 export default AdminProfile;
+
 
 
 

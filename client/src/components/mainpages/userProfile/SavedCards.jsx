@@ -7,6 +7,7 @@ const SavedCards = () => {
   const state = useContext(GlobalState);
   const [token] = state.token;
   const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [newCard, setNewCard] = useState({
     cardNumber: '',
     cardHolderName: '',
@@ -14,7 +15,6 @@ const SavedCards = () => {
     expiryYear: '',
     isDefault: false
   });
-  const [loading, setLoading] = useState(true);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -28,19 +28,14 @@ const SavedCards = () => {
     const getCards = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('/user/card', {
+        const res = await axios.get('/user/cards', {
           headers: { Authorization: token }
         });
-        // Handle both cases where cards might be directly in res.data or in res.data.cards
-        setCards(res.data.cards || res.data || []);
+        console.log('Cards response:', res.data); // Debug log
+        setCards(res.data.cards || []);
       } catch (err) {
-        // Check specifically for 404 status or if the error message indicates no cards
-        if (err.response?.status === 404 || err.response?.data?.msg?.toLowerCase().includes('no cards')) {
-          setCards([]);
-        } else {
-          // Only show alert for actual errors
-          alert(err.response?.data?.msg || 'Error fetching cards');
-        }
+        console.error('Error fetching cards:', err);
+        alert(err.response?.data?.msg || 'Error fetching cards');
       } finally {
         setLoading(false);
       }
@@ -54,6 +49,7 @@ const SavedCards = () => {
       const res = await axios.post('/user/card', newCard, {
         headers: { Authorization: token }
       });
+      console.log('Add card response:', res.data); // Debug log
       setCards(res.data.cards);
       setNewCard({
         cardNumber: '',
@@ -64,6 +60,7 @@ const SavedCards = () => {
       });
       alert('Card added successfully');
     } catch (err) {
+      console.error('Error adding card:', err);
       alert(err.response?.data?.msg || 'Error adding card');
     }
   };
@@ -223,6 +220,7 @@ const SavedCards = () => {
 };
 
 export default SavedCards;
+
 
 
 

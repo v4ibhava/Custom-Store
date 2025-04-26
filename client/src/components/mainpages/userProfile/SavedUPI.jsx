@@ -18,10 +18,10 @@ const SavedUPI = () => {
     const getUPIs = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('/user/upi', {
+        const res = await axios.get('/user/upi', {  // Changed from '/user/upis' to '/user/upi'
           headers: { Authorization: token }
         });
-        setUpis(res.data.upis || res.data || []);
+        setUpis(res.data.upis || []);  // Updated to handle the response structure
       } catch (err) {
         if (err.response?.status !== 404) {
           alert(err.response?.data?.msg || 'Error fetching UPIs');
@@ -188,5 +188,6 @@ const SavedUPI = () => {
 };
 
 export default SavedUPI;
+
 
 

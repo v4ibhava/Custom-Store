@@ -33,6 +33,7 @@ app.use('/api', require('./routes/categoryRouter'));
 app.use('/api', require('./routes/productRouter'));
 app.use('/api', require('./routes/upload'));
 
+
 // Connect MongoDB
 const URI = process.env.MONGODB_URL;
 mongoose.connect(URI)

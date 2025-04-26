@@ -2,7 +2,6 @@ import React, { useState, useContext, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GlobalState } from '../../../GlobalState';
-import UserHistory from '../history/UserHistory';
 import UserAddress from './useraddress/UserAddress';
 import { 
   FiShoppingBag,
@@ -16,7 +15,7 @@ import {
   FiLogOut,
   FiSettings
 } from 'react-icons/fi';
-import OrderHistory from '../history/UserHistory';
+import OrderHistory from '../history/OrderHistory';
 import SavedUPI from './SavedUPI';
 import SavedCards from './SavedCards';
 
@@ -74,7 +73,15 @@ const Profile = () => {
   const renderContent = () => {
     switch(activeSection) {
       case 'orders':
-        return <OrderHistory />;
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <FiShoppingBag className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-semibold">Order History</h2>
+            </div>
+            <OrderHistory />
+          </div>
+        );
       case 'profile':
         return (
           <div className="bg-white rounded-lg shadow-sm p-6">

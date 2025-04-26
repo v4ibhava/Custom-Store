@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { GlobalState } from '../../../../GlobalState';
 import { FiShoppingCart, FiCreditCard, FiArrowLeft } from 'react-icons/fi';
 import axios from 'axios';
 
 function DetailProduct() {
   const params = useParams();
+  const navigate = useNavigate();
   const state = useContext(GlobalState);
   const [token] = state.token;
   const addCart = state.userAPI.addCart;
@@ -29,6 +30,40 @@ function DetailProduct() {
       getProduct();
     }
   }, [params.id]);
+
+  const handleAuthAction = (action) => {
+    if (!token) {
+      const confirmLogin = window.confirm("Please login to continue shopping. Would you like to login now?");
+      if (confirmLogin) {
+        navigate('/login');
+      }
+      return false;
+    }
+    return true;
+  };
+
+  const buyNow = (product) => {
+    if (!handleAuthAction('buy')) return;
+
+    // Create a single-item cart for immediate checkout
+    const singleItemCart = [{
+      ...product,
+      quantity: 1
+    }];
+
+    // Navigate to checkout with the single item
+    navigate('/checkout', { 
+      state: { 
+        items: singleItemCart,
+        isBuyNow: true 
+      }
+    });
+  };
+
+  const handleAddToCart = (product) => {
+    if (!handleAuthAction('cart')) return;
+    addCart(product);
+  };
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -98,19 +133,19 @@ function DetailProduct() {
 
               <div className="flex gap-4">
                 <button
-                  onClick={() => addCart(detailProduct)}
+                  onClick={() => handleAddToCart(detailProduct)}
                   className="btn btn-primary flex-1 gap-2"
                 >
                   <FiShoppingCart />
                   Add to Cart
                 </button>
-                <Link
-                  to="/checkout"
+                <button
+                  onClick={() => buyNow(detailProduct)}
                   className="btn btn-secondary flex-1 gap-2"
                 >
                   <FiCreditCard />
                   Buy Now
-                </Link>
+                </button>
               </div>
             </div>
 

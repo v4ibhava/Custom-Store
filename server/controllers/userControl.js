@@ -342,6 +342,126 @@ const userController = {
         } catch (err) {
             return res.status(500).json({ msg: err.message });
         }
+    },
+    // Get UPIs
+    getUPIs: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            // Add detailed logging
+            console.log('User ID:', req.user.id);
+            console.log('Full User Object:', user);
+            console.log('UPIs Array:', user.upis);
+
+            res.json({ 
+                upis: user.upis || [],
+                msg: "UPIs fetched successfully" 
+            });
+        } catch (err) {
+            console.error('Error in getUPIs:', err);
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    // Get all cards
+    getCards: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            console.log('Retrieved cards:', user.cards); // Debug log
+            res.json({ cards: user.cards });
+        } catch (err) {
+            console.error('Error in getCards:', err);
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    // Add new card
+    addCard: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            const { cardNumber, cardHolderName, expiryMonth, expiryYear, isDefault } = req.body;
+
+            // Basic validation
+            if (!cardNumber || !cardHolderName || !expiryMonth || !expiryYear) {
+                return res.status(400).json({ msg: "Please fill in all card fields" });
+            }
+
+            // Mask card number (keep last 4 digits visible)
+            const maskedCardNumber = cardNumber.replace(/\d(?=\d{4})/g, "*");
+
+            // If this is the first card or isDefault is true, handle default logic
+            if (user.cards.length === 0 || isDefault) {
+                user.cards.forEach(card => card.isDefault = false);
+            }
+
+            const newCard = {
+                cardNumber: maskedCardNumber,
+                cardHolderName,
+                expiryMonth,
+                expiryYear,
+                isDefault: user.cards.length === 0 ? true : isDefault
+            };
+
+            user.cards.push(newCard);
+            await user.save();
+
+            console.log('Card added successfully:', newCard); // Debug log
+            res.json({ msg: "Card added successfully", cards: user.cards });
+        } catch (err) {
+            console.error('Error in addCard:', err);
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    addOrder: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            // Generate a simple order ID
+            const orderId = 'ORD-' + Date.now();
+
+            // Create order history entry
+            const orderHistory = {
+                orderId,
+                items: req.body.cart.map(item => ({
+                    productId: item._id,
+                    title: item.title,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                total: req.body.total,
+                date: new Date()
+            };
+
+            // Add to user's order history
+            user.orderHistory.push(orderHistory);
+            
+            // Clear the user's cart
+            user.cart = [];
+            
+            await user.save();
+
+            res.json({ 
+                msg: "Order placed successfully", 
+                orderId,
+                orderHistory 
+            });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    getOrderHistory: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            res.json(user.orderHistory);
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
     }
 };
 
