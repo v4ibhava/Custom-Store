@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { GlobalState } from '../../../GlobalState';
 import ProductList from '../utils/productslists/ProductList';
 import { HiAdjustments } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 function Products() {
   const state = useContext(GlobalState);
@@ -164,6 +165,34 @@ function Products() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Add Product Card - Admin Only */}
+          {isAdmin && (
+            <Link to="/create_product" className="h-full">
+              <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow h-full flex flex-col items-center justify-center p-4">
+                <div className="w-full h-48 bg-gray-50 rounded-md mb-4 flex items-center justify-center">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-16 w-16 text-pink-600" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Add New Product</h2>
+                <p className="text-sm text-gray-600 text-center mb-4">Click here to add a new product to your inventory</p>
+                <span className="text-pink-600 font-bold">Add Product</span>
+              </div>
+            </Link>
+          )}
+
+          {/* Product List */}
           {filteredProducts.length > 0 ? (
             filteredProducts.map(product => (
               <ProductList key={product._id} product={product} isAdmin={isAdmin} />
