@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { GlobalState } from '../../../GlobalState';
-import OrderHistory from '../history/UserHistory';
+import AdminOrders from './AdminOrders';
 import { 
   BiBarChart,
   BiShoppingBag,
@@ -65,7 +65,7 @@ const AdminProfile = () => {
               <BiShoppingBag className="w-6 h-6 text-primary" />
               <h2 className="text-2xl font-semibold">Order Management</h2>
             </div>
-            <OrderHistory isAdmin={true} />
+            <AdminOrders />
           </div>
         );
       case 'products':

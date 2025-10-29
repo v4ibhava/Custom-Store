@@ -51,6 +51,16 @@ const UserAddress = () => {
   // Add new address
   const handleAddAddress = async (e) => {
     e.preventDefault();
+    // Basic front-end validation
+    const { street, city, postalCode } = newAddress;
+    if (!street?.trim() || !city?.trim() || !postalCode?.trim()) {
+      alert('Please fill street, city and pincode.');
+      return;
+    }
+    if (!/^\d{4,10}$/.test(postalCode.trim())) {
+      alert('Please enter a valid pincode.');
+      return;
+    }
     try {
       const res = await axios.post('/user/address', newAddress, {
         headers: { Authorization: token }
@@ -117,6 +127,7 @@ const UserAddress = () => {
             onChange={handleInputChange}
             placeholder="Street Address"
             className="input input-bordered w-full"
+            autoFocus={true}
             required
           />
         </div>
@@ -150,6 +161,8 @@ const UserAddress = () => {
             onChange={handleInputChange}
             placeholder="Postal Code"
             className="input input-bordered w-full"
+            inputMode="numeric"
+            pattern="\\d{4,10}"
             required
           />
         </div>

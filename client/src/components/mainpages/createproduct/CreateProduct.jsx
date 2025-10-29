@@ -8,6 +8,7 @@ const CreateProduct = () => {
   const state = useContext(GlobalState);
   const [categories] = state.categoriesAPI.categories;
   const [token] = state.token;
+  const { getProducts } = state.productAPI;
   const navigate = useNavigate();
 
   const [product, setProduct] = useState({
@@ -81,7 +82,8 @@ const CreateProduct = () => {
       });
 
       alert("Product created successfully!");
-      navigate('/products');
+      await getProducts(); // Refresh the products list
+      navigate('/');
     } catch (err) {
       console.error(err.response?.data?.msg || "An error occurred");
       alert(err.response?.data?.msg || "Failed to create the product");

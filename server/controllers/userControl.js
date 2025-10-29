@@ -1,38 +1,89 @@
 const Users = require('../models/userModel');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const userController = {
     register: async (req, res) => {
         try {
-            const { name, email, password } = req.body;
-            const user = await Users.findOne({ email });
-            if (user)
-                return res.status(400).json({ msg: "The email already exists." });
-            if (password.length < 6)
-                return res.status(400).json({ msg: "Password must be at least 6 characters long." });
+            const { email, password } = req.body;
 
-            // Password encryption
+            const user = await Users.findOne({ email });
+            if (user) return res.status(400).json({ msg: "The email already exists." });
+
+            if (password.length < 6)
+                return res.status(400).json({ msg: "Password is at least 6 characters long." });
+
+            // Password Encryption
             const passwordHash = await bcrypt.hash(password, 10);
+
             const newUser = new Users({
-                name,
-                email,
-                password: passwordHash
+                email, password: passwordHash
             });
 
-            // Save to MongoDB
+            // Generate OTP
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            newUser.otp = otp;
+            newUser.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
             await newUser.save();
 
-            // JWT for authentication
-            const accesstoken = createAccessToken({ id: newUser._id });
-            const refreshtoken = createRefreshToken({ id: newUser._id });
+            // Here you would send the OTP to the user's email.
+            // For this example, we'll just return it in the response.
+            res.json({ msg: "Registration successful. Please verify your OTP.", otp });
 
-            // Send tokens
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+
+    verifyOtp: async (req, res) => {
+        try {
+            const { email, otp } = req.body;
+            const user = await Users.findOne({ email });
+
+            if (!user) return res.status(400).json({ msg: "User not found." });
+
+            if (user.otp !== otp || user.otpExpires < Date.now()) {
+                return res.status(400).json({ msg: "Invalid or expired OTP." });
+            }
+
+            user.isVerified = true;
+            user.otp = undefined;
+            user.otpExpires = undefined;
+            await user.save();
+
+            // Create access and refresh tokens
+            const accesstoken = createAccessToken({ id: user._id });
+            const refreshtoken = createRefreshToken({ id: user._id });
+
             res.cookie('refreshtoken', refreshtoken, {
                 httpOnly: true,
                 path: '/user/refreshtoken',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
             });
+
             res.json({ accesstoken });
+
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+
+    setupProfile: async (req, res) => {
+        try {
+            const { name, age, gender } = req.body;
+            const user = await Users.findById(req.user.id);
+
+            if (!user) return res.status(400).json({ msg: "User not found." });
+
+            user.name = name;
+            user.age = age;
+            user.gender = gender;
+            user.isProfileComplete = true;
+            await user.save();
+
+            res.json({ msg: "Profile setup successful." });
+
         } catch (err) {
             return res.status(500).json({ msg: err.message });
         }
@@ -50,33 +101,6 @@ const userController = {
                 const accesstoken = createAccessToken({ id: user.id });
                 res.json({ accesstoken });
             });
-        } catch (err) {
-            return res.status(500).json({ msg: err.message });
-        }
-    },
-    login: async (req, res) => {
-        try {
-            const { email, password } = req.body;
-            const user = await Users.findOne({ email });
-            if (!user)
-                return res.status(400).json({ msg: "User does not exist." });
-
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch)
-                return res.status(400).json({ msg: "Incorrect password." });
-
-            const accesstoken = createAccessToken({ id: user._id });
-            const refreshtoken = createRefreshToken({ id: user._id });
-
-            // Set refresh token cookie with proper options
-            res.cookie('refreshtoken', refreshtoken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Use secure in production
-                path: '/user/refreshtoken',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
-
-            res.json({ accesstoken });
         } catch (err) {
             return res.status(500).json({ msg: err.message });
         }
@@ -220,20 +244,6 @@ const userController = {
 
             await user.save();
             res.json({ msg: "Address deleted successfully", addresses: user.addresses });
-        } catch (err) {
-            return res.status(500).json({ msg: err.message });
-        }
-    },
-    saveCart: async (req, res) => {
-        try {
-            const user = await Users.findById(req.user.id);
-            if (!user) return res.status(404).json({ msg: "User not found." });
-    
-            // Update the user's cart
-            user.cart = req.body.cart;
-            await user.save();
-    
-            res.json({ msg: "Cart updated successfully." });
         } catch (err) {
             return res.status(500).json({ msg: err.message });
         }

@@ -68,7 +68,7 @@ const upiSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: false,
     },
     email: {
         type: String,
@@ -77,7 +77,33 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: false,
+    },
+    age: {
+        type: Number,
+        required: false,
+    },
+    dob: {
+        type: Date,
+        required: false,
+    },
+    gender: {
+        type: String,
+        required: false,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    isProfileComplete: {
+        type: Boolean,
+        default: false,
+    },
+    otp: {
+        type: String,
+    },
+    otpExpires: {
+        type: Date,
     },
     role: {
         type: Number,

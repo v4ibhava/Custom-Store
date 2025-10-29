@@ -32,6 +32,9 @@ app.use('/user', require('./routes/useRouter'));
 app.use('/api', require('./routes/categoryRouter'));
 app.use('/api', require('./routes/productRouter'));
 app.use('/api', require('./routes/upload'));
+app.use('/api/otp', require('./routes/otpRouter'));
+app.use('/api/payment', require('./routes/paymentRouter'));
+app.use('/api/orders', require('./routes/orderRouter'));
 
 // Connect MongoDB
 const URI = process.env.MONGODB_URL;

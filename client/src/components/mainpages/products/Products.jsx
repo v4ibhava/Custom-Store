@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { GlobalState } from '../../../GlobalState';
 import ProductList from '../utils/productslists/ProductList';
+import ProductNotFound from '../utils/not_found/ProductNotFound';
 import { HiAdjustments } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 
@@ -17,12 +18,16 @@ function Products() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortOrder, setSortOrder] = useState('');
+  const [hasSearchTerm, setHasSearchTerm] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const searchTerm = params.get('search');
 
     let filtered = [...products];
+
+    // Track if there's a search term
+    setHasSearchTerm(!!searchTerm);
 
     // Text search filter (available for both admin and users)
     if (searchTerm) {
@@ -79,6 +84,11 @@ function Products() {
     setPriceRange({ min: '', max: '' });
     setSortOrder('');
   };
+
+  // Show ProductNotFound if there's a search term but no results
+  if (hasSearchTerm && filteredProducts.length === 0) {
+    return <ProductNotFound />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
