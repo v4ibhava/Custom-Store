@@ -4,7 +4,7 @@ services:
     name: e-com-api
     env: node
     rootDir: server
-    buildCommand: npm install
+    buildCommand: npm install && npm rebuild bcrypt --build-from-source
     startCommand: node server.js
     envVars:
       - key: MONGODB_URL
