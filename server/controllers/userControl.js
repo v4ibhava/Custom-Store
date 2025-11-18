@@ -1,6 +1,5 @@
 const Users = require('../models/userModel');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 
 const userController = {
     register: async (req, res) => {
@@ -13,11 +12,12 @@ const userController = {
             if (password.length < 6)
                 return res.status(400).json({ msg: "Password is at least 6 characters long." });
 
-            // Password Encryption
-            const passwordHash = await bcrypt.hash(password, 10);
+            // Password Encryption (not used - OTP login only)
+            // const passwordHash = await bcrypt.hash(password, 10);
 
             const newUser = new Users({
-                email, password: passwordHash
+                email
+                // password: passwordHash (not used - OTP login only)
             });
 
             // Generate OTP
