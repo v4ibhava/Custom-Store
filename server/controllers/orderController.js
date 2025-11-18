@@ -10,13 +10,25 @@ const orderController = {
 			return res.status(500).json({ msg: err.message });
 		}
 	},
-	listAll: async (_req, res) => {
+	listMine: async (req, res) => {
 		try {
-			const { status, paymentStatus } = _req.query;
+			const { status, paymentStatus } = req.query;
+			const filter = { user: req.user.id };
+			if (status) filter.status = status;
+			if (paymentStatus) filter.paymentStatus = paymentStatus;
+			const orders = await Orders.find(filter).sort({ createdAt: -1 });
+			return res.json(orders);
+		} catch (err) {
+			return res.status(500).json({ msg: err.message });
+		}
+	},
+	listAll: async (req, res) => {
+		try {
+			const { status, paymentStatus } = req.query;
 			const filter = {};
 			if (status) filter.status = status;
 			if (paymentStatus) filter.paymentStatus = paymentStatus;
-			const orders = await Orders.find(filter).populate('user', 'name email');
+			const orders = await Orders.find(filter).sort({ createdAt: -1 }).populate('user', 'name email');
 			return res.json(orders);
 		} catch (err) {
 			return res.status(500).json({ msg: err.message });
