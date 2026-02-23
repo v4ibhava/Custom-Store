@@ -6,9 +6,15 @@ const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 
-// Updated CORS configuration
+// Updated CORS configuration for Vercel & Render
 app.use(cors({
-    origin: 'http://localhost:5173', // Frontend's origin
+    origin: function (origin, callback) {
+        if (!origin || origin.startsWith('http://localhost') || origin.includes('vercel.app') || origin === process.env.CLIENT_URL) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true, // Enable cookies to be sent with the request
 }));
 
