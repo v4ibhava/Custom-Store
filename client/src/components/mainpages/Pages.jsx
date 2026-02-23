@@ -11,7 +11,7 @@ import OrderDetails from './history/OrderDetails';
 import Cart from './cart/Cart';
 import NotFound from './utils/not_found/NotFound';
 import Categories from './categories/CreateCategory';
-import CreateProduct from './createProduct/CreateProduct';
+import CreateProduct from './createproduct/CreateProduct';
 import Profile from './userProfile/Profile';
 import AdminProfile from './adminProfile/AdminProfile';
 import AdminOrders from './adminProfile/AdminOrders';
@@ -48,7 +48,7 @@ function Pages() {
             <Route path='/saved-upi' element={<SavedUPI />} />
             <Route path='/saved-card' element={<SavedCards />} />
             <Route path='/wishlist' element={<Wishlist />} />
-            
+
             {/* Common routes that users might try */}
             <Route path='/products' element={<Products />} />
             <Route path='/shop' element={<Products />} />
