@@ -28,23 +28,24 @@ app.get('/', (req, res) => {
 });
 
 // Routes
-app.use('/user', require('./routes/useRouter')); 
+app.use('/user', require('./routes/useRouter'));
 app.use('/api', require('./routes/categoryRouter'));
 app.use('/api', require('./routes/productRouter'));
 app.use('/api', require('./routes/upload'));
 app.use('/api/otp', require('./routes/otpRouter'));
 app.use('/api/payment', require('./routes/paymentRouter'));
 app.use('/api/orders', require('./routes/orderRouter'));
+app.use('/api', require('./routes/reviewRouter'));
 
 // Connect MongoDB
-const URI = process.env.MONGODB_URL;
+const URI = process.env.MONGODB_URI;
 mongoose.connect(URI)
-.then(() => {
-    console.log('Connected to MongoDB');
-})
-.catch(err => {
-    console.log(err);
-});
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch(err => {
+        console.log(err);
+    });
 
 // Start server
 app.listen(PORT, () => {

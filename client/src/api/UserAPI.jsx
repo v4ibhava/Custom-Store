@@ -5,6 +5,7 @@ const UserAPI = (token) => {
   const [isLogged, setIsLogged] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [cart, setCart] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -23,6 +24,11 @@ const UserAPI = (token) => {
             headers: { Authorization: token },
           });
           setCart(cartRes.data || []);
+
+          const wishlistRes = await axios.get('/user/wishlist', {
+            headers: { Authorization: token },
+          });
+          setWishlist(wishlistRes.data || []);
         } catch (err) {
           console.error("Error fetching user information:", err.response?.data?.msg);
         }
@@ -34,10 +40,10 @@ const UserAPI = (token) => {
   // Function to add a product to the cart
   const addCart = async (product) => {
     if (!isLogged) return alert("Please login to continue shopping.");
-  
+
     // Check if the product already exists in the cart
     const existingProduct = cart.find((item) => item._id === product._id);
-  
+
     if (existingProduct) {
       // Alert the user if the product already exists
       alert("This product is already in the cart.");
@@ -69,13 +75,49 @@ const UserAPI = (token) => {
     }
   };
 
+  const addWishlist = async (product) => {
+    if (!isLogged) return alert("Please login to see wishlist.");
+
+    const check = wishlist.every(item => item._id !== product._id);
+    if (check) {
+      const newWishlist = [...wishlist, product];
+      setWishlist(newWishlist);
+
+      try {
+        await axios.post('/user/wishlist', { product }, {
+          headers: { Authorization: token }
+        });
+        alert("Added to wishlist!");
+      } catch (err) {
+        alert(err.response.data.msg);
+      }
+    } else {
+      alert("This product is already in wishlist.");
+    }
+  };
+
+  const removeWishlist = async (id) => {
+    try {
+      const newWishlist = wishlist.filter(item => item._id !== id);
+      setWishlist(newWishlist);
+      await axios.delete(`/user/wishlist/${id}`, {
+        headers: { Authorization: token }
+      });
+    } catch (err) {
+      alert(err.response.data.msg);
+    }
+  };
+
   // Return the state and functions
   return {
     isLogged: [isLogged, setIsLogged],
     isAdmin: [isAdmin, setIsAdmin],
     cart: [cart, setCart],
+    wishlist: [wishlist, setWishlist],
     addCart: addCart,
     updateCart: updateCart,
+    addWishlist: addWishlist,
+    removeWishlist: removeWishlist,
     token: [token],
     user: [user, setUser],
   };

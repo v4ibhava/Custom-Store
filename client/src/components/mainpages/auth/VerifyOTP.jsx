@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import OTPInput from './OTPInput';
+import { FiMail, FiArrowLeft, FiShield, FiAlertTriangle } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 function VerifyOTP({ email }) {
     const [error, setError] = useState('');
@@ -15,45 +17,48 @@ function VerifyOTP({ email }) {
             const res = await axios.post('/api/otp/verify', { email, otp: otpValue });
             localStorage.setItem('firstLogin', res.data.accesstoken);
 
-            // Check if user needs to complete profile
             if (res.data.isNewUser && !res.data.isProfileComplete) {
                 navigate('/add-info');
             } else {
                 window.location.href = "/";
             }
         } catch (err) {
-            setError(err.response?.data?.msg || 'Failed to verify OTP');
+            setError(err.response?.data?.msg || 'Verification failed. Please check the code.');
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-            <div className="max-w-lg w-full animate-in slide-in-from-bottom-4 duration-700">
-                {/* Card */}
-                <div className="bg-white shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
+        <div className="min-h-screen bg-[#FFF9FB] flex items-center justify-center px-4 py-12">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="max-w-md w-full"
+            >
+                {/* Back Button */}
+                <Link to="/login" className="inline-flex items-center text-sm font-medium text-pink-400 hover:text-pink-600 mb-8 transition-colors group">
+                    <FiArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" />
+                    Back to login
+                </Link>
+
+                <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(255,182,193,0.1)] border border-pink-50 overflow-hidden">
                     <div className="p-8 sm:p-10">
-                        {/* Title Section */}
-                        <div className="text-center mb-6">
-                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight">
-                                Verify Your Email
-                            </h2>
-                            <p className="text-base font-semibold text-gray-600 mb-2">
-                                We sent a code to
-                            </p>
-                            <p className="text-lg font-black text-pink-600 break-all">
-                                {email}
-                            </p>
+                        {/* Status Icon */}
+                        <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mb-8 mx-auto">
+                            <FiShield className="size-8 text-pink-500" />
                         </div>
 
-                        <div className="divider text-xs font-bold text-gray-400">ENTER CODE</div>
-
-                        <p className="text-center text-sm font-semibold text-gray-600 mb-2">
-                            Enter the 6-digit code below
-                        </p>
-                        <p className="text-center text-xs font-bold text-pink-600 mb-4">
-                            ✨ Auto-submits when complete
-                        </p>
+                        {/* Title Section */}
+                        <div className="text-center mb-10">
+                            <h2 className="text-2xl font-black text-gray-900 mb-3">
+                                Check Your Email
+                            </h2>
+                            <p className="text-gray-500 text-sm leading-relaxed px-4">
+                                We've sent a 6-digit verification code to
+                                <span className="block font-bold text-gray-900 mt-1">{email || "your email"}</span>
+                            </p>
+                        </div>
 
                         <OTPInput
                             length={6}
@@ -62,25 +67,35 @@ function VerifyOTP({ email }) {
                         />
 
                         {error && (
-                            <div className="alert alert-error shadow-lg animate-in slide-in-from-top-2 duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mt-6 flex items-center gap-3 p-4 bg-red-50 rounded-xl text-red-600 text-sm border border-red-100"
+                            >
+                                <FiAlertTriangle className="shrink-0 size-5" />
                                 <span className="font-semibold">{error}</span>
-                            </div>
+                            </motion.div>
                         )}
 
-                        <div className="text-center mt-6 p-4 bg-gray-100 rounded-lg">
-                            <p className="text-xs font-bold text-gray-600">
-                                💡 Didn't receive the code?
+                        <div className="mt-10 pt-8 border-t border-gray-50 text-center">
+                            <p className="text-sm text-gray-500">
+                                Didn't receive the email?
                             </p>
-                            <p className="text-xs font-semibold text-gray-500 mt-1">
-                                Check your spam folder or request a new one
-                            </p>
+                            <button
+                                className="mt-2 text-sm font-bold text-pink-600 hover:text-pink-700 transition-colors cursor-pointer"
+                                onClick={() => {/* Resend logic would go here if available */ }}
+                            >
+                                Click to resend
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <p className="text-center mt-8 text-xs text-gray-400 font-medium tracking-wide flex items-center justify-center gap-2">
+                    <FiMail className="size-3" />
+                    SECURE VERIFICATION BY CAKE AVENUE
+                </p>
+            </motion.div>
         </div>
     );
 }

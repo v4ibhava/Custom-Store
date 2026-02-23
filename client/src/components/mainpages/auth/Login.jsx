@@ -1,34 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { GlobalState } from '../../../GlobalState';
+import { FiMail, FiLock, FiArrowRight, FiKey, FiSmartphone } from 'react-icons/fi';
 
 function Login({ setEmail: setParentEmail }) {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loginMethod, setLoginMethod] = useState('password'); // 'password' or 'otp'
     const [msg, setMsg] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const state = useContext(GlobalState);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setMsg('');
 
         if (!email.trim()) {
             setError('Please enter your email');
             return;
         }
 
+        if (loginMethod === 'password' && !password.trim()) {
+            setError('Please enter your password');
+            return;
+        }
+
         setIsLoading(true);
-        setError('');
 
         try {
-            const res = await axios.post('/api/otp/login', { email });
-            setMsg(res.data.msg);
-            setParentEmail(email);
-            setTimeout(() => {
-                navigate('/verify-otp');
-            }, 1000);
+            if (loginMethod === 'otp') {
+                const res = await axios.post('/api/otp/login', { email });
+                setMsg(res.data.msg);
+                setParentEmail(email);
+                setTimeout(() => navigate('/verify-otp'), 1000);
+            } else {
+                const res = await axios.post('/user/loginWithPassword', { email, password });
+                localStorage.setItem('firstLogin', true);
+                window.location.href = '/';
+            }
         } catch (err) {
-            setError(err.response?.data?.msg || 'Failed to send OTP');
+            setError(err.response?.data?.msg || 'Login failed');
             setIsLoading(false);
         }
     };
@@ -36,100 +51,100 @@ function Login({ setEmail: setParentEmail }) {
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
             <div className="max-w-md w-full">
-                {/* Card */}
-                <div className="bg-white shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="bg-white shadow-xl rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
                     <div className="p-8 sm:p-10">
-                        {/* Title Section */}
                         <div className="text-center mb-8">
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+                            <div className="w-16 h-16 bg-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <span className="text-2xl">🍰</span>
+                            </div>
+                            <h2 className="text-3xl font-black text-gray-900 mb-2 mt-2 tracking-tight">
                                 Welcome Back
                             </h2>
-                            <p className="text-base text-gray-600">
-                                Login to continue your sweet journey 🎂
+                            <p className="text-sm font-medium text-gray-500">
+                                Sign in to check out your sweet favorites
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* TABS */}
+                        <div className="flex bg-gray-100 rounded-2xl p-1 mb-8">
+                            <button
+                                type="button"
+                                onClick={() => { setLoginMethod('password'); setError(''); setMsg(''); }}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${loginMethod === 'password' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                                <FiKey className="size-4" /> Password
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setLoginMethod('otp'); setError(''); setMsg(''); }}
+                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${loginMethod === 'otp' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                            >
+                                <FiSmartphone className="size-4" /> OTP
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email Address *
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    placeholder="your.email@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    disabled={isLoading}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 disabled:opacity-60"
-                                />
+                                <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2 block">Email Address</label>
+                                <div className="relative">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        disabled={isLoading}
+                                        placeholder="you@example.com"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-4 focus:ring-pink-50 font-bold text-gray-900 transition-all placeholder:font-normal"
+                                    />
+                                    <FiMail className="absolute top-1/2 left-5 -translate-y-1/2 text-gray-400 size-5" />
+                                </div>
                             </div>
 
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                                    <div className="flex">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <div className="ml-3">
-                                            <p className="text-sm text-red-800">{error}</p>
-                                        </div>
+                            {loginMethod === 'password' && (
+                                <div>
+                                    <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2 block">Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required={loginMethod === 'password'}
+                                            disabled={isLoading}
+                                            placeholder="••••••••"
+                                            className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-4 focus:ring-pink-50 font-bold text-gray-900 transition-all placeholder:font-normal"
+                                        />
+                                        <FiLock className="absolute top-1/2 left-5 -translate-y-1/2 text-gray-400 size-5" />
                                     </div>
                                 </div>
                             )}
 
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex gap-3 text-red-600 text-sm font-bold animate-pulse">
+                                    <span>⚠️</span> {error}
+                                </div>
+                            )}
+
                             {msg && (
-                                <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                                    <div className="flex">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <div className="ml-3">
-                                            <p className="text-sm text-green-800">{msg}</p>
-                                        </div>
-                                    </div>
+                                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex gap-3 text-green-600 text-sm font-bold">
+                                    <span>✅</span> {msg}
                                 </div>
                             )}
 
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="w-full flex justify-center items-center gap-2 py-4 border border-transparent rounded-2xl shadow-md font-black text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-4 focus:ring-pink-100 disabled:opacity-60 transition-all group"
                             >
-                                {isLoading ? (
-                                    <>
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Sending OTP...
-                                    </>
-                                ) : (
-                                    'Send OTP'
-                                )}
+                                {isLoading ? 'Processing...' : (loginMethod === 'otp' ? 'Send OTP to Email' : 'Sign In Securely')}
+                                {!isLoading && <FiArrowRight className="group-hover:translate-x-1 transition-transform" />}
                             </button>
                         </form>
 
-                        <div className="mt-6">
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300" />
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white text-gray-500">OR</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 text-center">
-                            <p className="text-sm text-gray-600">
-                                Don't have an account?{' '}
-                                <Link
-                                    to="/signup"
-                                    className="font-medium text-pink-600 hover:text-pink-500"
-                                >
-                                    Sign up here
+                        <div className="mt-8 text-center pt-8 border-t border-gray-100">
+                            <p className="text-sm text-gray-500 font-medium">
+                                New to Cake Avenue?{' '}
+                                <Link to="/signup" className="font-extrabold text-pink-600 hover:text-pink-700 transition-colors">
+                                    Create Account
                                 </Link>
                             </p>
                         </div>

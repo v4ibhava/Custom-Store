@@ -1,7 +1,98 @@
 const Users = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const userController = {
+    loginWithPassword: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+            const user = await Users.findOne({ email });
+
+            if (!user) return res.status(400).json({ msg: "User does not exist." });
+
+            if (!user.password) return res.status(400).json({ msg: "You haven't set up a password yet. Please login via OTP and set a password in your profile." });
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) return res.status(400).json({ msg: "Incorrect password." });
+
+            const accesstoken = createAccessToken({ id: user._id });
+            const refreshtoken = createRefreshToken({ id: user._id });
+
+            res.cookie('refreshtoken', refreshtoken, {
+                httpOnly: true,
+                path: '/user/refreshtoken',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
+            });
+
+            res.json({ accesstoken, user: { ...user._doc, password: '' } });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+
+    requestPasswordOTP: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(400).json({ msg: "User does not exist." });
+
+            const otp = crypto.randomInt(100000, 999999).toString();
+            user.otp = otp;
+            user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+            await user.save();
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            });
+
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: 'OTP to Change Password',
+                html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">Your Password Change OTP</h2>
+                    <p style="color: #666; font-size: 16px;">Use this OTP to authenticate your password change request:</p>
+                    <div style="background-color: #f0f0f0; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                        <h1 style="color: #007bff; letter-spacing: 5px; margin: 0;">${otp}</h1>
+                    </div>
+                    <p style="color: #666; font-size: 14px;">This OTP is valid for 10 minutes.</p>
+                </div>`
+            };
+            await transporter.sendMail(mailOptions);
+
+            res.json({ msg: "OTP sent to your email." });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+
+    changePassword: async (req, res) => {
+        try {
+            const { otp, newPassword } = req.body;
+
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(400).json({ msg: "User does not exist." });
+
+            if (user.otp !== otp || user.otpExpires < Date.now()) {
+                return res.status(400).json({ msg: "Invalid or expired OTP." });
+            }
+
+            if (newPassword.length < 6) return res.status(400).json({ msg: "Password must be at least 6 characters long." });
+
+            const passwordHash = await bcrypt.hash(newPassword, 10);
+
+            await Users.findOneAndUpdate({ _id: req.user.id }, {
+                password: passwordHash,
+                $unset: { otp: 1, otpExpires: 1 }
+            });
+
+            res.json({ msg: "Password changed successfully." });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
     register: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -237,7 +328,7 @@ const userController = {
             // If deleting default address, make the first remaining address default
             const wasDefault = user.addresses[addressIndex].isDefault;
             user.addresses.splice(addressIndex, 1);
-            
+
             if (wasDefault && user.addresses.length > 0) {
                 user.addresses[0].isDefault = true;
             }
@@ -255,7 +346,7 @@ const userController = {
             if (!user) return res.status(404).json({ msg: "User not found" });
 
             const maskedCardNumber = req.body.cardNumber.replace(/\d(?=\d{4})/g, "*");
-            
+
             if (user.cards.length === 0) {
                 req.body.isDefault = true;
             }
@@ -291,7 +382,7 @@ const userController = {
             // If deleting default card, make the first remaining card default
             const wasDefault = user.cards[cardIndex].isDefault;
             user.cards.splice(cardIndex, 1);
-            
+
             if (wasDefault && user.cards.length > 0) {
                 user.cards[0].isDefault = true;
             }
@@ -342,13 +433,58 @@ const userController = {
             // If deleting default UPI, make the first remaining UPI default
             const wasDefault = user.upis[upiIndex].isDefault;
             user.upis.splice(upiIndex, 1);
-            
+
             if (wasDefault && user.upis.length > 0) {
                 user.upis[0].isDefault = true;
             }
 
             await user.save();
             res.json({ msg: "UPI deleted successfully", upis: user.upis });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    // Wishlist Management
+    addWishlist: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            const product = req.body.product;
+            const isExist = user.wishlist.find(item => item._id === product._id);
+
+            if (isExist) {
+                return res.status(400).json({ msg: "Product already in wishlist." });
+            }
+
+            user.wishlist.push(product);
+            await user.save();
+
+            res.json({ msg: "Added to wishlist", wishlist: user.wishlist });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    getWishlist: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            res.json(user.wishlist);
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
+    },
+    deleteWishlist: async (req, res) => {
+        try {
+            const user = await Users.findById(req.user.id);
+            if (!user) return res.status(404).json({ msg: "User not found" });
+
+            const { id } = req.params;
+            user.wishlist = user.wishlist.filter(item => item._id !== id);
+
+            await user.save();
+            res.json({ msg: "Removed from wishlist", wishlist: user.wishlist });
         } catch (err) {
             return res.status(500).json({ msg: err.message });
         }

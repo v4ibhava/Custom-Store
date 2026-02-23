@@ -2,6 +2,9 @@ const userController = require('../controllers/userControl');
 const auth = require('../middleware/auth');
 const router = require('express').Router();
 
+router.post('/loginWithPassword', userController.loginWithPassword);
+router.put('/change-password', auth, userController.changePassword);
+router.post('/request-password-otp', auth, userController.requestPasswordOTP);
 router.get('/refreshtoken', userController.refreshtoken);
 router.get('/logout', userController.logout);
 router.get('/information', auth, userController.getUser);
@@ -24,5 +27,10 @@ router.delete('/card/:cardId', auth, userController.deleteCard);
 // UPI routes
 router.post('/upi', auth, userController.addUPI);
 router.delete('/upi/:upiId', auth, userController.deleteUPI);
+
+// Wishlist routes
+router.get('/wishlist', auth, userController.getWishlist);
+router.post('/wishlist', auth, userController.addWishlist);
+router.delete('/wishlist/:id', auth, userController.deleteWishlist);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 function OTPInput({ length = 6, onComplete, isLoading = false }) {
     const [otp, setOtp] = useState(new Array(length).fill(""));
@@ -11,19 +12,16 @@ function OTPInput({ length = 6, onComplete, isLoading = false }) {
     }, []);
 
     const handleChange = (element, index) => {
-        // Only allow numeric input
         if (isNaN(element.value)) return false;
 
         const newOtp = [...otp];
         newOtp[index] = element.value;
         setOtp(newOtp);
 
-        // Auto-move to next input
         if (element.value !== "" && index < length - 1) {
             inputRefs.current[index + 1].focus();
         }
 
-        // Auto-submit when all digits are filled
         if (newOtp.every(digit => digit !== "")) {
             const otpValue = newOtp.join("");
             onComplete(otpValue);
@@ -33,10 +31,8 @@ function OTPInput({ length = 6, onComplete, isLoading = false }) {
     const handleKeyDown = (e, index) => {
         if (e.key === "Backspace") {
             if (otp[index] === "" && index > 0) {
-                // Move to previous input if current is empty
                 inputRefs.current[index - 1].focus();
             } else if (otp[index] !== "") {
-                // Clear current input
                 const newOtp = [...otp];
                 newOtp[index] = "";
                 setOtp(newOtp);
@@ -62,12 +58,10 @@ function OTPInput({ length = 6, onComplete, isLoading = false }) {
             });
             setOtp(newOtp);
 
-            // Focus on the last filled input or the next empty one
             const lastFilledIndex = newOtp.findIndex(digit => digit === "");
             const focusIndex = lastFilledIndex === -1 ? length - 1 : lastFilledIndex;
             inputRefs.current[focusIndex].focus();
 
-            // Auto-submit if all filled
             if (newOtp.every(digit => digit !== "")) {
                 const otpValue = newOtp.join("");
                 onComplete(otpValue);
@@ -76,33 +70,64 @@ function OTPInput({ length = 6, onComplete, isLoading = false }) {
     };
 
     return (
-        <div className="flex flex-col items-center gap-6 my-8">
-            {/* OTP Input Container - Fixed width to prevent wrapping */}
-            <div className="flex gap-2 sm:gap-3 justify-center items-center">
+        <div className="flex flex-col items-center gap-8 my-4">
+            <div className="flex gap-3 justify-center items-center">
                 {otp.map((data, index) => (
-                    <input
-                        key={index}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength="1"
-                        value={data}
-                        onChange={(e) => handleChange(e.target, index)}
-                        onKeyDown={(e) => handleKeyDown(e, index)}
-                        onFocus={(e) => e.target.select()}
-                        onPaste={handlePaste}
-                        ref={(el) => (inputRefs.current[index] = el)}
-                        className="w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 text-xl sm:text-2xl md:text-3xl font-black text-center text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:scale-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                        disabled={isLoading}
-                        aria-label={`OTP digit ${index + 1}`}
-                    />
+                    <div key={index} className="relative">
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength="1"
+                            value={data}
+                            onChange={(e) => handleChange(e.target, index)}
+                            onKeyDown={(e) => handleKeyDown(e, index)}
+                            onFocus={(e) => e.target.select()}
+                            onPaste={handlePaste}
+                            ref={(el) => (inputRefs.current[index] = el)}
+                            className={`
+                                w-11 h-14 sm:w-12 sm:h-16
+                                text-2xl font-black text-center 
+                                text-gray-900 bg-white
+                                border-2 rounded-2xl
+                                transition-all duration-200
+                                focus:outline-none focus:scale-105
+                                ${data
+                                    ? 'border-pink-500 bg-pink-50/10'
+                                    : 'border-gray-100 bg-gray-50/30 hover:border-pink-200'
+                                }
+                                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                            `}
+                            disabled={isLoading}
+                            aria-label={`OTP digit ${index + 1}`}
+                        />
+                        {data && (
+                            <motion.div
+                                layoutId="dot"
+                                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-pink-500"
+                            />
+                        )}
+                    </div>
                 ))}
             </div>
 
             {isLoading && (
-                <div className="flex items-center gap-2 animate-in fade-in duration-300">
-                    <span className="loading loading-spinner loading-sm text-pink-600"></span>
-                    <p className="text-pink-600 text-sm font-bold">Verifying OTP...</p>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center gap-3"
+                >
+                    <div className="flex gap-1.5">
+                        {[0, 1, 2].map((i) => (
+                            <motion.div
+                                key={i}
+                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                                transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+                                className="w-2 h-2 rounded-full bg-pink-500"
+                            />
+                        ))}
+                    </div>
+                    <p className="text-pink-500 text-xs font-bold tracking-widest uppercase">Verifying</p>
+                </motion.div>
             )}
         </div>
     );

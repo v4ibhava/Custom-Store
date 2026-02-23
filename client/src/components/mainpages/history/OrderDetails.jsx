@@ -125,18 +125,27 @@ const OrderDetails = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Items</h3>
           <div className="border border-gray-100 rounded-lg divide-y divide-gray-100">
             {items.map((item) => (
-              <div key={item.productId} className="flex flex-col md:flex-row md:items-center justify-between px-4 py-3 gap-2">
-                <div>
-                  <p className="font-medium text-gray-900">{item.name}</p>
-                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+              <div key={item.productId} className="flex flex-col md:flex-row md:items-center justify-between px-4 py-4 gap-3 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex-1">
+                  <p className="font-bold text-gray-900 leading-tight">{item.name}</p>
+                  <p className="text-xs font-medium text-gray-500 mt-1 uppercase tracking-wider">Qty: {item.quantity}</p>
+                  {status === 'Delivered' && (
+                    <Link
+                      to={`/detail/${item.productId}`}
+                      className="inline-flex mt-3 text-xs font-bold text-pink-600 bg-pink-50 hover:bg-pink-100 hover:text-pink-700 px-4 py-1.5 rounded-full transition-colors items-center gap-1.5"
+                    >
+                      <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="size-3.5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                      Write a Review
+                    </Link>
+                  )}
                 </div>
-                <div className="text-gray-900 font-medium">
+                <div className="text-gray-900 font-black text-lg md:text-right shrink-0">
                   ₹{Number(item.price * item.quantity).toFixed(2)}
                 </div>
               </div>
             ))}
             {items.length === 0 && (
-              <div className="px-4 py-6 text-center text-sm text-gray-500">
+              <div className="px-4 py-8 text-center text-sm font-medium text-gray-500 bg-gray-50">
                 No items found for this order.
               </div>
             )}

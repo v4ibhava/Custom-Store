@@ -5,13 +5,14 @@ import { FaUser } from "react-icons/fa";
 import { RiShoppingCart2Fill } from "react-icons/ri";
 import { BiBell } from "react-icons/bi";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
+import { FiHeart } from "react-icons/fi";
 
 export default function Headers() {
   const state = useContext(GlobalState);
   const navigate = useNavigate(); // Add this
   const {
-    isLogged = [false, () => {}],
-    isAdmin = [false, () => {}],
+    isLogged = [false, () => { }],
+    isAdmin = [false, () => { }],
     cart = [],
   } = state?.userAPI || {};
   const [logged] = isLogged;
@@ -34,7 +35,7 @@ export default function Headers() {
   // Admin Header
   if (admin) {
     return (
-      <nav className="bg-base-100 shadow-md px-4 lg:px-8">
+      <nav className="sticky top-0 z-50 bg-base-100 shadow-md px-4 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-1">
             <Link to="/" className="text-2xl font-extrabold text-pink-600">
@@ -43,7 +44,7 @@ export default function Headers() {
           </div>
           {/* CENTER */}
           <div className="flex-1 w-full max-w-2xl mx-4">
-      
+
             <input
               type="text"
               placeholder="Search orders, products, or users..."
@@ -56,8 +57,8 @@ export default function Headers() {
           {/* // Right Side */}
 
           <div className="flex-1 flex justify-end items-center gap-4">
-              <BiBell size={24} className=" text-zinc-950 cursor-pointer hover:text-pink-500"/>
-      
+            <BiBell size={24} className=" text-zinc-950 cursor-pointer hover:text-pink-500" />
+
             <Link
               to="/AdminProfile"
             >
@@ -71,7 +72,7 @@ export default function Headers() {
 
   // Regular User Header
   return (
-    <nav className="bg-base-100 shadow-md px-4 lg:px-8">
+    <nav className="sticky top-0 z-50 bg-base-100 shadow-md px-4 lg:px-8">
       <div className="flex items-center justify-between h-16">
         <div className="flex-1">
           <Link to="/" className="text-2xl font-extrabold text-pink-600">
@@ -80,25 +81,25 @@ export default function Headers() {
         </div>
 
         <div className="flex-1 w-full max-w-2xl mx-1 relative">
-  <input
-    type="text"
-    placeholder="Craving cake? Type your sweet tooth's wish… 🍰"
-    className="
+          <input
+            type="text"
+            placeholder="Craving cake? Type your sweet tooth's wish… 🍰"
+            className="
       peer w-full h-8
       border border-gray-200 rounded pl-10
       focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-200
       transition text-xs
       placeholder-pink-300 italic
     "
-    onChange={handleSearch}
-  />
-  <span
-    aria-hidden="true"
-    className="absolute top-1/2 left-2 transform -translate-y-1/2 text-pink-400"
-  >
-    <HiMiniMagnifyingGlass />
-  </span>
-</div>
+            onChange={handleSearch}
+          />
+          <span
+            aria-hidden="true"
+            className="absolute top-1/2 left-2 transform -translate-y-1/2 text-pink-400"
+          >
+            <HiMiniMagnifyingGlass />
+          </span>
+        </div>
 
 
 
@@ -107,12 +108,22 @@ export default function Headers() {
         <div className="flex-1 flex justify-end items-center gap-4">
           {logged ? (
             <>
-              <Link 
-                to="/profile" 
+              <Link
+                to="/profile"
                 className="p-2 hover:bg-gray-100 rounded-full transition"
                 aria-label="Your Profile"
               >
                 <FaUser size={20} className="text-gray-600" />
+              </Link>
+              <Link
+                to="/profile"
+                className="p-2 hover:bg-gray-100 rounded-full transition relative group"
+                aria-label="Wishlist"
+              >
+                <FiHeart size={20} className="text-gray-600 group-hover:text-rose-500 transition-colors" />
+                {state.userAPI.wishlist[0].length > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+                )}
               </Link>
               <Link
                 to="/cart"
@@ -128,8 +139,8 @@ export default function Headers() {
               </Link>
             </>
           ) : (
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="group relative inline-block text-gray-600 hover:text-pink-600"
             >
               Sign In
