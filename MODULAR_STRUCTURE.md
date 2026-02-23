@@ -131,18 +131,19 @@ client/
 | **GlobalState.jsx** | Centralized state management using Context API |
 | **api/** | API abstraction layer - all HTTP requests to backend |
 | **components/headers/** | Navigation header and top-level navigation |
-| **auth/** | User authentication flows (login, signup, OTP verification) |
+| **auth/** | Dual-Auth flow features (Secure Password hashing + OTP verification) |
 | **cart/** | Shopping cart display and management |
 | **products/** | Product listing and browsing |
 | **createproduct/** | Admin product creation form |
 | **editproduct/** | Admin product editing form |
 | **categories/** | Category management |
 | **checkout/** | Payment and order checkout process |
-| **userProfile/** | User personal information and preferences |
+| **userProfile/** | Premium UI User personal info, Security settings, Addresses, Saved Cards/UPI |
 | **adminProfile/** | Admin dashboard and order management |
 | **history/** | User order history and details |
 | **orders/** | Order status tracking |
 | **wishlist/** | Wishlist management |
+| **utils/reviews/** | Product Reviews module for delivered orders |
 | **utils/** | Helper components (product details, 404 pages, etc.) |
 
 ### Data Flow (Client)
