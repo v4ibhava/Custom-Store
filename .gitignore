@@ -54,10 +54,17 @@ Thumbs.db
 # Keep examples
 !.env.example
 
-# Ignore uploads
+# Ignore uploads and temporary files
+uploads/
 /uploads/
 !/uploads/.gitkeep
+server/uploads/
+client/uploads/
 
+# Ignore temp files from file uploaders like express-fileupload
+tmp/
+/tmp/
+server/tmp/
 
 
 
