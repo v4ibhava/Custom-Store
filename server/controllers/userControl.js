@@ -23,7 +23,9 @@ const userController = {
             res.cookie('refreshtoken', refreshtoken, {
                 httpOnly: true,
                 path: '/user/refreshtoken',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+                sameSite: 'none',
+                secure: true
             });
 
             res.json({ accesstoken, user: { ...user._doc, password: '' } });
@@ -150,7 +152,9 @@ const userController = {
             res.cookie('refreshtoken', refreshtoken, {
                 httpOnly: true,
                 path: '/user/refreshtoken',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+                sameSite: 'none',
+                secure: true
             });
 
             res.json({ accesstoken });
@@ -198,7 +202,11 @@ const userController = {
     },
     logout: async (req, res) => {
         try {
-            res.clearCookie('refreshtoken', { path: '/user/refreshtoken' });
+            res.clearCookie('refreshtoken', {
+                path: '/user/refreshtoken',
+                sameSite: 'none',
+                secure: true
+            });
             return res.json({ msg: "Logged out." });
         } catch (err) {
             return res.status(500).json({ msg: err.message });

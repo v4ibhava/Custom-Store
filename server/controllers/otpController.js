@@ -173,7 +173,9 @@ const otpController = {
             res.cookie('refreshtoken', refreshtoken, {
                 httpOnly: true,
                 path: '/user/refreshtoken',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                sameSite: 'none',
+                secure: true
             });
 
             res.json({
