@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const UserAPI = (token) => {
   const [isLogged, setIsLogged] = useState(false);
@@ -39,19 +40,22 @@ const UserAPI = (token) => {
 
   // Function to add a product to the cart
   const addCart = async (product) => {
-    if (!isLogged) return alert("Please login to continue shopping.");
+    if (!isLogged) {
+      toast.error("Please login to continue shopping.");
+      return;
+    }
 
     // Check if the product already exists in the cart
     const existingProduct = cart.find((item) => item._id === product._id);
 
     if (existingProduct) {
-      // Alert the user if the product already exists
-      alert("This product is already in the cart.");
+      // Toast the user if the product already exists
+      toast.error("This product is already in the cart.");
     } else {
       // Add new product with a default quantity of 1
       const newCart = [...cart, { ...product, quantity: 1 }];
       setCart(newCart);
-      alert("Product added to cart!");
+      toast.success("Product added to cart!");
 
       // Save the updated cart to the backend
       try {
@@ -76,7 +80,10 @@ const UserAPI = (token) => {
   };
 
   const addWishlist = async (product) => {
-    if (!isLogged) return alert("Please login to see wishlist.");
+    if (!isLogged) {
+      toast.error("Please login to see wishlist.");
+      return;
+    }
 
     const check = wishlist.every(item => item._id !== product._id);
     if (check) {
@@ -87,12 +94,12 @@ const UserAPI = (token) => {
         await axios.post('/user/wishlist', { product }, {
           headers: { Authorization: token }
         });
-        alert("Added to wishlist!");
+        toast.success("Added to wishlist!");
       } catch (err) {
-        alert(err.response.data.msg);
+        toast.error(err.response.data.msg);
       }
     } else {
-      alert("This product is already in wishlist.");
+      toast.error("This product is already in wishlist.");
     }
   };
 
@@ -103,8 +110,9 @@ const UserAPI = (token) => {
       await axios.delete(`/user/wishlist/${id}`, {
         headers: { Authorization: token }
       });
+      toast.success("Removed from wishlist!");
     } catch (err) {
-      alert(err.response.data.msg);
+      toast.error(err.response.data.msg);
     }
   };
 

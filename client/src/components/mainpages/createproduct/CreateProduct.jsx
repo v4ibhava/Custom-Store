@@ -3,6 +3,7 @@ import { GlobalState } from '../../../GlobalState';
 import axios from 'axios';
 import { FiUploadCloud, FiDollarSign, FiBox, FiFileText, FiImage, FiTag, FiList } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const CreateProduct = () => {
   const state = useContext(GlobalState);
@@ -53,10 +54,11 @@ const CreateProduct = () => {
       });
 
       setProduct({ ...product, images: res.data });
+      toast.success('Image uploaded successfully!');
       
     } catch (err) {
       console.error(err.response?.data?.msg || "File upload failed");
-      alert(err.response?.data?.msg || "Failed to upload the image");
+      toast.error(err.response?.data?.msg || "Failed to upload the image");
     } finally {
       setLoading(false);
     }
@@ -81,12 +83,12 @@ const CreateProduct = () => {
         },
       });
 
-      alert("Product created successfully!");
+      toast.success("Product created successfully!");
       await getProducts(); // Refresh the products list
       navigate('/');
     } catch (err) {
       console.error(err.response?.data?.msg || "An error occurred");
-      alert(err.response?.data?.msg || "Failed to create the product");
+      toast.error(err.response?.data?.msg || "Failed to create the product");
     }
   };
 

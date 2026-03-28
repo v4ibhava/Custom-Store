@@ -4,6 +4,7 @@ import { GlobalState } from '../../../GlobalState';
 import axios from 'axios';
 import { HiUpload, HiPhotograph } from 'react-icons/hi';
 import categories from '../../../data/CategoryList';  // Import the predefined categories
+import toast from 'react-hot-toast';
 
 const EditProduct = () => {
     const state = useContext(GlobalState);
@@ -38,7 +39,10 @@ const EditProduct = () => {
     }, [id, token]);
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
-        if (!file) return alert("No file selected.");
+        if (!file) {
+            toast.error("No file selected.");
+            return;
+        }
     
         try {
             setLoading(true); // Show loading overlay
@@ -51,10 +55,10 @@ const EditProduct = () => {
             });
     
             setProduct({ ...product, images: res.data }); // Update product with uploaded image
-            alert("Image uploaded successfully!");
+            toast.success("Image uploaded successfully!");
         } catch (err) {
             console.error("Image Upload Error:", err.response?.data?.msg || err.message);
-            alert("Failed to upload the image.");
+            toast.error("Failed to upload the image.");
         } finally {
             setLoading(false); // Hide loading overlay
         }
@@ -72,10 +76,10 @@ const EditProduct = () => {
             await axios.put(`/api/products/${id}`, product, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            alert("Product updated successfully!");
+            toast.success("Product updated successfully!");
         } catch (err) {
             console.error("Update failed:", err.response?.data?.msg || err.message);
-            alert("Failed to update the product.");
+            toast.error("Failed to update the product.");
         }
     };
 

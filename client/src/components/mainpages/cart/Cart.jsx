@@ -5,6 +5,7 @@ import React, { useContext, useEffect } from 'react';
 import { GlobalState } from '../../../GlobalState';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import {
   FiMinus,
   FiPlus,
@@ -20,19 +21,39 @@ function Cart() {
 
   // Remove an item from cart and sync with server
   const removeItem = async (product) => {
-    if (window.confirm("Do you want to remove this item from cart?")) {
-      const newCart = cart.filter(item => item._id !== product._id);
-      setCart(newCart);
-      try {
-        await axios.put(
-          '/user/cart',
-          { cart: newCart },
-          { headers: { Authorization: token } }
-        );
-      } catch (err) {
-        console.error("Error updating cart:", err.response?.data?.msg || err.message);
-      }
-    }
+    toast((t) => (
+      <div className="flex items-center gap-3">
+        <span>Remove this item from cart?</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              const newCart = cart.filter(item => item._id !== product._id);
+              setCart(newCart);
+              axios.put(
+                '/user/cart',
+                { cart: newCart },
+                { headers: { Authorization: token } }
+              ).then(() => {
+                toast.success('Item removed from cart');
+              }).catch(err => {
+                console.error("Error updating cart:", err.response?.data?.msg || err.message);
+                toast.error('Failed to remove item');
+              });
+            }}
+            className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600"
+          >
+            Remove
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: 5000 });
   };
 
   // Increment quantity and sync with server
@@ -51,8 +72,10 @@ function Cart() {
         { cart: newCart },
         { headers: { Authorization: token } }
       );
+      toast.success('Quantity updated');
     } catch (err) {
       console.error("Error updating cart:", err.response?.data?.msg || err.message);
+      toast.error('Failed to update quantity');
       // Rollback on error
       setCart(cart);
     }
@@ -60,7 +83,10 @@ function Cart() {
 
   // Decrement quantity and sync with server
   const decrement = async (product) => {
-    if (product.quantity <= 1) return;
+    if (product.quantity <= 1) {
+      toast.error('Minimum quantity is 1');
+      return;
+    }
 
     const newCart = cart.map(item =>
       item._id === product._id
@@ -76,8 +102,10 @@ function Cart() {
         { cart: newCart },
         { headers: { Authorization: token } }
       );
+      toast.success('Quantity updated');
     } catch (err) {
       console.error("Error updating cart:", err.response?.data?.msg || err.message);
+      toast.error('Failed to update quantity');
       // Rollback on error
       setCart(cart);
     }

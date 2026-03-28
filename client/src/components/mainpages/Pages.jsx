@@ -14,7 +14,6 @@ import Categories from './categories/CreateCategory';
 import CreateProduct from './createproduct/CreateProduct';
 import Profile from './userProfile/Profile';
 import AdminProfile from './adminProfile/AdminProfile';
-import AdminOrders from './adminProfile/AdminOrders';
 import Checkout from './checkout/checkout';
 import OrderStatus from './orders/OrderStatus';
 import EditProduct from './editproduct/EditProduct';
@@ -41,7 +40,6 @@ function Pages() {
             <Route path='/profile' element={<Profile />} />
             <Route path="/AdminProfile" element={<AdminProfile />} />
             <Route path="/admin/:section/:subsection" element={<AdminProfile />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/orders/:id' element={<OrderStatus />} />
             <Route path='/edit-product/:id' element={<EditProduct />} />

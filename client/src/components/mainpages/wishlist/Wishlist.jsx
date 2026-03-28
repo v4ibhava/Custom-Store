@@ -3,6 +3,7 @@ import { GlobalState } from '../../../GlobalState';
 import { Link } from 'react-router-dom';
 import { FiTrash2, FiShoppingCart, FiHeart } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 function Wishlist() {
   const state = useContext(GlobalState);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function Signup({ setEmail: setParentEmail }) {
     const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ function Signup({ setEmail: setParentEmail }) {
 
         if (!email.trim()) {
             setError('Please enter your email');
+            toast.error('Please enter your email');
             return;
         }
 
@@ -23,12 +25,15 @@ function Signup({ setEmail: setParentEmail }) {
         try {
             const res = await axios.post('/api/otp/signup', { email });
             setMsg(res.data.msg);
+            toast.success(res.data.msg);
             setParentEmail(email);
             setTimeout(() => {
                 navigate('/verify-otp');
             }, 1000);
         } catch (err) {
-            setError(err.response?.data?.msg || 'Failed to send OTP');
+            const errorMsg = err.response?.data?.msg || 'Failed to send OTP';
+            setError(errorMsg);
+            toast.error(errorMsg);
             setIsLoading(false);
         }
     };

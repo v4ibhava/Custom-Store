@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { GlobalState } from '../../../GlobalState'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const loadRazorpayScript = () => {
 	return new Promise((resolve) => {
@@ -37,13 +38,13 @@ const Checkout = () => {
 	}, [cart])
 
 	const handlePay = async () => {
-		if (!token) return alert('Please login to continue')
-		if (!cart?.length) return alert('Your cart is empty')
+		if (!token) return toast.error('Please login to continue')
+		if (!cart?.length) return toast.error('Your cart is empty')
 		const address = (user?.addresses || []).find(a => (a._id?.toString?.() || a._id) === selectedAddressId)
-		if (!address) return alert('Select a delivery address')
+		if (!address) return toast.error('Select a delivery address')
 
 		const ok = await loadRazorpayScript()
-		if (!ok) return alert('Razorpay SDK failed to load. Check your network.')
+		if (!ok) return toast.error('Razorpay SDK failed to load. Check your network.')
 
 		try {
 			const items = cart.map(c => ({
@@ -70,7 +71,7 @@ const Checkout = () => {
 			const { order, dbOrderId } = data
 			const { data: config } = await axios.get('/api/payment/config')
 			const key = config?.key
-			if (!key) return alert('Razorpay key is not configured on the server')
+			if (!key) return toast.error('Razorpay key is not configured on the server')
 			const options = {
 				key,
 				amount: order.amount,
@@ -89,16 +90,17 @@ const Checkout = () => {
 							razorpay_payment_id: response.razorpay_payment_id,
 							razorpay_signature: response.razorpay_signature
 						}, { headers: { Authorization: token } })
+						toast.success('Payment successful!')
 						navigate(`/orders/${dbOrderId}`)
 					} catch (e) {
-						alert(e?.response?.data?.msg || 'Payment verification failed')
+						toast.error(e?.response?.data?.msg || 'Payment verification failed')
 					}
 				}
 			}
 			const rzp = new window.Razorpay(options)
 			rzp.open()
 		} catch (err) {
-			alert(err?.response?.data?.msg || 'Unable to start payment')
+			toast.error(err?.response?.data?.msg || 'Unable to start payment')
 		}
 	}
 

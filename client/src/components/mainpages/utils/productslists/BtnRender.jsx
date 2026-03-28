@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { GlobalState } from '../../../../GlobalState';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const BtnRender = ({ product }) => {
   const state = useContext(GlobalState);
@@ -10,17 +11,36 @@ const BtnRender = ({ product }) => {
   const [token] = state.userAPI.token || [];
 
   const deleteProduct = async (id) => {
-    try {
-      if (window.confirm("Are you sure you want to delete this product?")) {
-        const res = await axios.delete(`/api/products/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        alert(res.data.msg);
-      }
-    } catch (err) {
-      console.error("Delete Product Error:", err.response?.data?.msg || err.message);
-      alert(err.response?.data?.msg || "Failed to delete product");
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <span>Are you sure you want to delete this product?</span>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                const res = await axios.delete(`/api/products/${id}`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                toast.success(res.data.msg);
+              } catch (err) {
+                console.error("Delete Product Error:", err.response?.data?.msg || err.message);
+                toast.error(err.response?.data?.msg || "Failed to delete product");
+              }
+            }}
+            className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: 5000 });
   };
   
   return (

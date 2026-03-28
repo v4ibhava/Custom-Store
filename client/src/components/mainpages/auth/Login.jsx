@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { GlobalState } from '../../../GlobalState';
 import { FiMail, FiLock, FiArrowRight, FiKey, FiSmartphone } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 function Login({ setEmail: setParentEmail }) {
     const [email, setEmail] = useState('');
@@ -21,11 +22,13 @@ function Login({ setEmail: setParentEmail }) {
 
         if (!email.trim()) {
             setError('Please enter your email');
+            toast.error('Please enter your email');
             return;
         }
 
         if (loginMethod === 'password' && !password.trim()) {
             setError('Please enter your password');
+            toast.error('Please enter your password');
             return;
         }
 
@@ -35,15 +38,19 @@ function Login({ setEmail: setParentEmail }) {
             if (loginMethod === 'otp') {
                 const res = await axios.post('/api/otp/login', { email });
                 setMsg(res.data.msg);
+                toast.success(res.data.msg);
                 setParentEmail(email);
                 setTimeout(() => navigate('/verify-otp'), 1000);
             } else {
                 const res = await axios.post('/user/loginWithPassword', { email, password });
+                toast.success('Login successful!');
                 localStorage.setItem('firstLogin', true);
                 window.location.href = '/';
             }
         } catch (err) {
-            setError(err.response?.data?.msg || 'Login failed');
+            const errorMsg = err.response?.data?.msg || 'Login failed';
+            setError(errorMsg);
+            toast.error(errorMsg);
             setIsLoading(false);
         }
     };
