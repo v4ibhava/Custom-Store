@@ -23,9 +23,8 @@ import {
 const AdminProducts = () => {
   const state = useContext(GlobalState);
   const [token] = state.token;
-  const [products, setProducts] = state.productAPI.products;
+  const { products, setProducts, getProducts } = state.productAPI;
   const [categories] = state.categoriesAPI.categories;
-  const { getProducts } = state.productAPI;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');

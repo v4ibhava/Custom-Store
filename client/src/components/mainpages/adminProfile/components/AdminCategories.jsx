@@ -17,7 +17,7 @@ const AdminCategories = () => {
   const [token] = state.token;
   const [categories, setCategories] = state.categoriesAPI.categories;
   const getCategories = state.categoriesAPI.getCategories;
-  const [products] = state.productAPI.products;
+  const { products } = state.productAPI;
 
   const [newCategory, setNewCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');

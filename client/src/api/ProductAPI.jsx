@@ -25,6 +25,7 @@ function useProductsAPI() {
 
   return {
     products,
+    setProducts,
     loading,
     error,
     getProducts

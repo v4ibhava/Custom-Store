@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import toast from 'react-hot-toast';
+import axios from 'axios';
+import { GlobalState } from '../../../../GlobalState';
 import {
   FiTag,
   FiPlus,
@@ -15,47 +17,21 @@ import {
 } from 'react-icons/fi';
 
 const AdminCoupons = () => {
-  const [coupons, setCoupons] = useState([
-    {
-      id: '1',
-      code: 'WELCOME20',
-      type: 'percentage',
-      value: 20,
-      minOrder: 500,
-      maxDiscount: 200,
-      usageLimit: 100,
-      usedCount: 45,
-      validFrom: '2025-01-01',
-      validUntil: '2025-12-31',
-      isActive: true
-    },
-    {
-      id: '2',
-      code: 'SAVE50',
-      type: 'fixed',
-      value: 50,
-      minOrder: 300,
-      maxDiscount: 50,
-      usageLimit: 200,
-      usedCount: 120,
-      validFrom: '2025-01-01',
-      validUntil: '2025-06-30',
-      isActive: true
-    },
-    {
-      id: '3',
-      code: 'FREESHIP',
-      type: 'fixed',
-      value: 100,
-      minOrder: 1000,
-      maxDiscount: 100,
-      usageLimit: 50,
-      usedCount: 50,
-      validFrom: '2025-01-01',
-      validUntil: '2025-03-31',
-      isActive: false
-    }
-  ]);
+  const state = useContext(GlobalState);
+  const [token] = state.userAPI.token;
+  const [coupons, setCoupons] = useState([]);
+  
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const res = await axios.get('/api/coupons');
+        setCoupons(res.data);
+      } catch (err) {
+        toast.error(err.response?.data?.msg || "Failed to fetch coupons");
+      }
+    };
+    fetchCoupons();
+  }, []);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
@@ -71,43 +47,39 @@ const AdminCoupons = () => {
     isActive: true
   });
 
-  const handleCreateCoupon = () => {
+  const handleCreateCoupon = async () => {
     if (!newCoupon.code || !newCoupon.value) {
       toast.error('Please fill in required fields');
       return;
     }
 
-    const coupon = {
+    const couponData = {
       ...newCoupon,
-      id: Date.now().toString(),
-      usedCount: 0,
       value: parseFloat(newCoupon.value),
       minOrder: parseFloat(newCoupon.minOrder) || 0,
       maxDiscount: parseFloat(newCoupon.maxDiscount) || 0,
       usageLimit: parseInt(newCoupon.usageLimit) || 100
     };
 
-    if (editingCoupon) {
-      setCoupons(coupons.map(c => c.id === editingCoupon.id ? { ...coupon, id: editingCoupon.id, usedCount: editingCoupon.usedCount } : c));
-      toast.success('Coupon updated successfully');
-    } else {
-      setCoupons([...coupons, coupon]);
-      toast.success('Coupon created successfully');
-    }
+    try {
+      if (editingCoupon) {
+        const res = await axios.put(`/api/coupons/${editingCoupon._id}`, couponData, { headers: { Authorization: token } });
+        setCoupons(coupons.map(c => c._id === editingCoupon._id ? res.data.coupon : c));
+        toast.success('Coupon updated successfully');
+      } else {
+        const res = await axios.post('/api/coupons', couponData, { headers: { Authorization: token } });
+        setCoupons([...coupons, res.data.coupon]);
+        toast.success('Coupon created successfully');
+      }
 
-    setShowCreateModal(false);
-    setEditingCoupon(null);
-    setNewCoupon({
-      code: '',
-      type: 'percentage',
-      value: '',
-      minOrder: '',
-      maxDiscount: '',
-      usageLimit: '',
-      validFrom: '',
-      validUntil: '',
-      isActive: true
-    });
+      setShowCreateModal(false);
+      setEditingCoupon(null);
+      setNewCoupon({
+        code: '', type: 'percentage', value: '', minOrder: '', maxDiscount: '', usageLimit: '', validFrom: '', validUntil: '', isActive: true
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Something went wrong.");
+    }
   };
 
   const handleEdit = (coupon) => {
@@ -119,8 +91,8 @@ const AdminCoupons = () => {
       minOrder: coupon.minOrder.toString(),
       maxDiscount: coupon.maxDiscount.toString(),
       usageLimit: coupon.usageLimit.toString(),
-      validFrom: coupon.validFrom,
-      validUntil: coupon.validUntil,
+      validFrom: new Date(coupon.validFrom).toISOString().split('T')[0],
+      validUntil: new Date(coupon.validUntil).toISOString().split('T')[0],
       isActive: coupon.isActive
     });
     setShowCreateModal(true);
@@ -132,10 +104,15 @@ const AdminCoupons = () => {
         <span className="font-medium">Delete this coupon?</span>
         <div className="flex gap-2">
           <button
-            onClick={() => {
+            onClick={async () => {
               toast.dismiss(t.id);
-              setCoupons(coupons.filter(c => c.id !== id));
-              toast.success('Coupon deleted successfully');
+              try {
+                await axios.delete(`/api/coupons/${id}`, { headers: { Authorization: token } });
+                setCoupons(coupons.filter(c => c._id !== id));
+                toast.success('Coupon deleted successfully');
+              } catch (err) {
+                toast.error("Failed to delete.");
+              }
             }}
             className="px-4 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600"
           >
@@ -152,11 +129,14 @@ const AdminCoupons = () => {
     ), { duration: 5000 });
   };
 
-  const toggleActive = (id) => {
-    setCoupons(coupons.map(c =>
-      c.id === id ? { ...c, isActive: !c.isActive } : c
-    ));
-    toast.success('Coupon status updated');
+  const toggleActive = async (id, isActiveCurrent) => {
+    try {
+      const res = await axios.put(`/api/coupons/${id}`, { isActive: !isActiveCurrent }, { headers: { Authorization: token } });
+      setCoupons(coupons.map(c => c._id === id ? res.data.coupon : c));
+      toast.success('Coupon status updated');
+    } catch (err) {
+      toast.error("Failed to update status.");
+    }
   };
 
   const copyCouponCode = (code) => {
@@ -248,7 +228,7 @@ const AdminCoupons = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {coupons.map((coupon) => (
           <div
-            key={coupon.id}
+            key={coupon._id}
             className={`bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all ${
               !coupon.isActive ? 'opacity-60' : ''
             }`}
@@ -322,14 +302,14 @@ const AdminCoupons = () => {
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500 pt-2">
                 <FiCalendar className="w-4 h-4" />
-                <span>{coupon.validFrom} - {coupon.validUntil}</span>
+                <span>{new Date(coupon.validFrom).toLocaleDateString()} - {new Date(coupon.validUntil).toLocaleDateString()}</span>
               </div>
             </div>
 
             {/* Coupon Actions */}
             <div className="px-5 pb-5 flex gap-2">
               <button
-                onClick={() => toggleActive(coupon.id)}
+                onClick={() => toggleActive(coupon._id, coupon.isActive)}
                 className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
                   coupon.isActive
                     ? 'bg-red-50 text-red-600 hover:bg-red-100'
@@ -345,7 +325,7 @@ const AdminCoupons = () => {
                 <FiEdit2 className="w-5 h-5 text-gray-600" />
               </button>
               <button
-                onClick={() => handleDelete(coupon.id)}
+                onClick={() => handleDelete(coupon._id)}
                 className="p-2 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
               >
                 <FiTrash2 className="w-5 h-5 text-red-600" />

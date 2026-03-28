@@ -2,3 +2,189 @@
 @plugin "daisyui" {
     themes: cupcake --default;
 }
+
+/* --- Smooth Scrolling & Base --- */
+* {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* --- Custom Theme Variables --- */
+:root {
+  --cream-beige: #F5E6D3;
+  --cream-light: #FAF0E6;
+  --pink-primary: #E91E63;
+  --pink-light: #F8BBD0;
+  --pink-accent: #FF69B4;
+  --pink-blush: #FFF9FB;
+  --pink-soft: #FFEEF2;
+  --pink-rose: #FFF0F5;
+  --text-dark: #4A4A4A;
+  --text-light: #666666;
+  --radius-card: 1.25rem;
+  --shadow-card: 0 2px 16px rgba(233,30,99,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card-hover: 0 8px 30px rgba(233,30,99,0.1), 0 4px 10px rgba(0,0,0,0.04);
+  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Body --- */
+body {
+  background-color: var(--cream-light);
+  color: var(--text-dark);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* === USER-SIDE: Blush card backgrounds === */
+.bg-white {
+  background-color: var(--pink-blush) !important;
+}
+
+.bg-gray-50 {
+  background-color: var(--cream-light) !important;
+}
+
+/* Pink accent overrides */
+.text-pink-600 {
+  color: var(--pink-primary) !important;
+}
+.text-pink-500 {
+  color: var(--pink-accent) !important;
+}
+.bg-pink-500 {
+  background-color: var(--pink-accent) !important;
+}
+.border-pink-500 {
+  border-color: var(--pink-primary) !important;
+}
+.focus\:ring-pink-200:focus {
+  --tw-ring-color: var(--pink-light) !important;
+}
+
+/* --- Scrollbar Styling --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(233,30,99,0.15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(233,30,99,0.3); }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+
+/* --- Selection --- */
+::selection {
+  background-color: #F8BBD0;
+  color: #880E4F;
+}
+
+/* --- Card shadow enhancements for blush --- */
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(233, 30, 99, 0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+.shadow-md {
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.08), 0 2px 4px rgba(0,0,0,0.04) !important;
+}
+.shadow-lg {
+  box-shadow: 0 10px 25px rgba(233, 30, 99, 0.1), 0 4px 10px rgba(0,0,0,0.04) !important;
+}
+
+/* --- Mobile Touch Targets --- */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  input, select, textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+
+/* --- Mobile Typography --- */
+@media (max-width: 768px) {
+  h1 { font-size: 1.625rem !important; line-height: 2.125rem !important; }
+  h2 { font-size: 1.325rem !important; line-height: 1.75rem !important; }
+  h3 { font-size: 1.1rem !important; line-height: 1.5rem !important; }
+}
+
+/* --- Mobile Spacing Tighten --- */
+@media (max-width: 640px) {
+  .container { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
+  .gap-8 { gap: 1rem !important; }
+  .py-8 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+  .mb-8 { margin-bottom: 1.25rem !important; }
+}
+
+/* --- Page Transition Animation --- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e0d8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* --- Sticky bottom bar for mobile --- */
+.sticky-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: var(--pink-blush);
+  border-top: 1px solid #fce4ec;
+  padding: 0.75rem 1rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -4px 20px rgba(233,30,99,0.06);
+}
+
+/* --- Hide scrollbar on mobile horizontal scroll --- */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* --- Admin Dark Theme --- */
+.admin-dark-theme {
+  background-color: #111111 !important;
+  color: #e5e7eb !important;
+}
+.admin-dark-theme header,
+.admin-dark-theme main { background-color: #111111 !important; }
+.admin-dark-theme .bg-\[\#f8f9fa\],
+.admin-dark-theme .bg-\[\#FAFAFA\] { background-color: #111111 !important; }
+.admin-dark-theme .bg-white {
+  background-color: #1c1c1e !important;
+  border-color: #2c2c2e !important;
+}
+.admin-dark-theme .bg-gray-50 { background-color: #2a2a2c !important; }
+.admin-dark-theme .bg-gray-100,
+.admin-dark-theme .bg-gray-200 { background-color: #3a3a3c !important; }
+.admin-dark-theme .border-gray-50,
+.admin-dark-theme .border-gray-100,
+.admin-dark-theme .border-gray-200 { border-color: #2c2c2e !important; }
+.admin-dark-theme .text-gray-900 { color: #f9fafb !important; }
+.admin-dark-theme .text-gray-800 { color: #f3f4f6 !important; }
+.admin-dark-theme .text-gray-700 { color: #e5e7eb !important; }
+.admin-dark-theme .text-gray-600 { color: #d1d5db !important; }
+.admin-dark-theme .text-gray-500 { color: #9ca3af !important; }
+.admin-dark-theme .text-gray-400 { color: #6b7280 !important; }
+.admin-dark-theme .text-pink-600 { color: #f472b6 !important; }
+.admin-dark-theme .text-pink-500 { color: #ec4899 !important; }
+.admin-dark-theme table tbody tr:hover { background-color: #242426 !important; }
+.admin-dark-theme .shadow-sm,
+.admin-dark-theme .shadow-md,
+.admin-dark-theme .shadow-lg,
+.admin-dark-theme .shadow-xl {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4) !important;
+}

@@ -8,7 +8,8 @@ router.route('/reviews')
     .post(auth, reviewController.createReview);
 
 router.route('/reviews/:id')
-    .delete(auth, reviewController.deleteReview);
+    .delete(auth, reviewController.deleteReview)
+    .put(auth, authAdmin, reviewController.replyReview);
 
 router.get('/product_reviews/:id', reviewController.getProductReviews);
 

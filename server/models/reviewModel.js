@@ -24,6 +24,10 @@ const reviewSchema = new mongoose.Schema({
     userName: {
         type: String,
         required: true
+    },
+    reply: {
+        type: String,
+        default: ''
     }
 }, {
     timestamps: true
