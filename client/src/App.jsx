@@ -14,7 +14,7 @@ function AppContent() {
   const shouldShowHeader = !noHeaderRoutes.includes(location.pathname);
 
   return (
-    <div className="App">
+    <div className="App pb-16 sm:pb-0">
       {shouldShowHeader && <Headers />}
       <Pages />
     </div>

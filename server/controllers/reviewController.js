@@ -55,6 +55,23 @@ const reviewController = {
         } catch (err) {
             return res.status(500).json({ msg: err.message });
         }
+    },
+    replyReview: async (req, res) => {
+        try {
+            const { reply } = req.body;
+            const review = await Reviews.findByIdAndUpdate(req.params.id, {
+                reply
+            }, { new: true });
+            
+            if (!review) return res.status(404).json({ msg: "Review not found." });
+            
+            const { createUserNotification } = require('./notificationController');
+            await createUserNotification(review.user, 'REVIEW_REPLY', `The store has replied to your review: "${reply.substring(0, 40)}${reply.length > 40 ? '...' : ''}"`);
+            
+            res.json({ msg: "Replied to review successfully.", review });
+        } catch (err) {
+            return res.status(500).json({ msg: err.message });
+        }
     }
 };
 

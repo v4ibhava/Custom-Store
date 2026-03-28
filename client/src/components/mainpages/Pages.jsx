@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Products from './products/Products';
 import DetailProduct from '../mainpages/utils/DetailProducts/DetailProduct';
@@ -21,8 +21,12 @@ import SavedUPI from './userProfile/SavedUPI';
 import SavedCards from './userProfile/SavedCards';
 import Wishlist from './wishlist/Wishlist';
 
+import { GlobalState } from '../../GlobalState';
+
 function Pages() {
     const [email, setEmail] = useState('');
+    const state = useContext(GlobalState);
+    const [isAdmin] = state.userAPI.isAdmin;
 
     return (
         <Routes>
@@ -37,7 +41,7 @@ function Pages() {
             <Route path="/history" element={<OrderHistory />} />
             <Route path="/history/:id" element={<OrderDetails />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path='/profile' element={<Profile />} />
+            <Route path='/profile' element={isAdmin ? <AdminProfile /> : <Profile />} />
             <Route path="/AdminProfile" element={<AdminProfile />} />
             <Route path="/admin/:section/:subsection" element={<AdminProfile />} />
             <Route path='/checkout' element={<Checkout />} />

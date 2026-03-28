@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function AddInfo() {
-    const [formData, setFormData] = useState({
-        name: '',
-        age: '',
-        gender: ''
-    });
+    const [formData, setFormData] = useState({ name: '', age: '', gender: '' });
     const [msg, setMsg] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -16,9 +12,7 @@ function AddInfo() {
     const onChange = (e) => {
         const { name, value } = e.target;
         if (name === 'age') {
-            // Only allow numbers and limit to 3 digits
-            const numValue = value.replace(/\D/g, '').slice(0, 3);
-            setFormData({ ...formData, [name]: numValue });
+            setFormData({ ...formData, [name]: value.replace(/\D/g, '').slice(0, 3) });
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -26,34 +20,19 @@ function AddInfo() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-
-        // Validation
-        if (!name.trim()) {
-            setError('Please enter your full name');
-            return;
-        }
-        if (!age || age < 13 || age > 120) {
-            setError('Please enter a valid age (13-120)');
-            return;
-        }
-        if (!gender) {
-            setError('Please select your gender');
-            return;
-        }
+        if (!name.trim()) { setError('Please enter your full name'); return; }
+        if (!age || age < 13 || age > 120) { setError('Please enter a valid age (13-120)'); return; }
+        if (!gender) { setError('Please select your gender'); return; }
 
         setIsLoading(true);
         setError('');
-
         try {
             const token = localStorage.getItem('firstLogin');
             const res = await axios.put('/user/setup-profile', formData, {
                 headers: { Authorization: token }
             });
             setMsg(res.data.msg);
-            // Redirect after a short delay to show success message
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 1500);
+            setTimeout(() => { window.location.href = "/"; }, 1500);
         } catch (err) {
             setError(err.response?.data?.msg || 'Failed to setup profile');
             setIsLoading(false);
@@ -61,28 +40,21 @@ function AddInfo() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center px-4 py-12 animate-in fade-in duration-500">
-            <div className="max-w-md w-full animate-in slide-in-from-bottom-4 duration-700">
-                {/* Card */}
-                <div className="card bg-base-100 shadow-2xl hover:shadow-3xl transition-shadow duration-300">
-                    <div className="card-body p-8 sm:p-10">
-                        {/* Title Section */}
-                        <div className="text-center mb-8">
-                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight">
-                                Complete Your Profile
-                            </h2>
-                            <p className="text-base font-semibold text-gray-600">
-                                Help us personalize your experience 🎉
-                            </p>
+        <div className="min-h-screen bg-[#FAF0E6] flex items-center justify-center px-3 py-6">
+            <div className="max-w-sm w-full">
+                <div className="bg-white shadow-lg rounded-2xl overflow-hidden border border-pink-50/50">
+                    <div className="p-5 sm:p-7">
+                        <div className="text-center mb-5">
+                            <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <span className="text-xl">🎉</span>
+                            </div>
+                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Complete Profile</h2>
+                            <p className="text-xs text-gray-500 mt-1">Help us personalize your experience</p>
                         </div>
 
-                        <form onSubmit={onSubmit} className="space-y-6">
-                            <div className="form-control">
-                                <label htmlFor="name" className="label">
-                                    <span className="label-text text-base font-bold text-gray-800">
-                                        Full Name *
-                                    </span>
-                                </label>
+                        <form onSubmit={onSubmit} className="space-y-3">
+                            <div>
+                                <label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Full Name *</label>
                                 <input
                                     type="text"
                                     id="name"
@@ -92,16 +64,12 @@ function AddInfo() {
                                     onChange={onChange}
                                     required
                                     disabled={isLoading}
-                                    className="input input-bordered input-lg w-full font-medium text-gray-900 focus:input-primary focus:scale-[1.02] transition-all duration-200 disabled:opacity-60"
+                                    className="w-full px-3 py-2.5 bg-pink-50/30 border border-pink-100 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-pink-100 disabled:opacity-60"
                                 />
                             </div>
 
-                            <div className="form-control">
-                                <label htmlFor="age" className="label">
-                                    <span className="label-text text-base font-bold text-gray-800">
-                                        Age *
-                                    </span>
-                                </label>
+                            <div>
+                                <label htmlFor="age" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Age *</label>
                                 <input
                                     type="text"
                                     id="age"
@@ -112,23 +80,15 @@ function AddInfo() {
                                     required
                                     disabled={isLoading}
                                     inputMode="numeric"
-                                    className="input input-bordered input-lg w-full font-medium text-gray-900 focus:input-primary focus:scale-[1.02] transition-all duration-200 disabled:opacity-60"
+                                    className="w-full px-3 py-2.5 bg-pink-50/30 border border-pink-100 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-pink-100 disabled:opacity-60"
                                 />
                                 {age && (age < 13 || age > 120) && (
-                                    <label className="label">
-                                        <span className="label-text-alt text-error font-bold animate-in slide-in-from-left-2 duration-200">
-                                            ⚠️ Age must be between 13 and 120
-                                        </span>
-                                    </label>
+                                    <p className="text-[10px] text-red-500 font-bold mt-1">Age must be between 13 and 120</p>
                                 )}
                             </div>
 
-                            <div className="form-control">
-                                <label htmlFor="gender" className="label">
-                                    <span className="label-text text-base font-bold text-gray-800">
-                                        Gender *
-                                    </span>
-                                </label>
+                            <div>
+                                <label htmlFor="gender" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 block">Gender *</label>
                                 <select
                                     id="gender"
                                     name="gender"
@@ -136,7 +96,7 @@ function AddInfo() {
                                     onChange={onChange}
                                     required
                                     disabled={isLoading}
-                                    className="select select-bordered select-lg w-full font-medium text-gray-900 focus:select-primary focus:scale-[1.02] transition-all duration-200 disabled:opacity-60"
+                                    className="w-full px-3 py-2.5 bg-pink-50/30 border border-pink-100 rounded-xl text-sm font-medium text-gray-900 focus:ring-2 focus:ring-pink-100 disabled:opacity-60"
                                 >
                                     <option value="">Select your gender</option>
                                     <option value="male">Male</option>
@@ -147,44 +107,29 @@ function AddInfo() {
                             </div>
 
                             {error && (
-                                <div className="alert alert-error shadow-lg animate-in slide-in-from-top-2 duration-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span className="font-semibold">{error}</span>
+                                <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-xs font-bold text-red-700">
+                                    ⚠️ {error}
                                 </div>
                             )}
 
                             {msg && (
-                                <div className="alert alert-success shadow-lg animate-in slide-in-from-top-2 duration-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span className="font-semibold">{msg}</span>
+                                <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 text-xs font-bold text-green-700">
+                                    ✅ {msg}
                                 </div>
                             )}
 
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="btn btn-primary btn-lg w-full text-base font-bold tracking-wide hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200 disabled:opacity-60"
+                                className="w-full py-2.5 mt-1 rounded-xl text-sm font-bold text-white bg-pink-600 hover:bg-pink-700 focus:ring-2 focus:ring-pink-100 disabled:opacity-60 transition-all shadow-sm"
                             >
-                                {isLoading ? (
-                                    <>
-                                        <span className="loading loading-spinner"></span>
-                                        Setting up...
-                                    </>
-                                ) : (
-                                    'Complete Profile'
-                                )}
+                                {isLoading ? 'Setting up...' : 'Complete Profile'}
                             </button>
                         </form>
 
-                        <div className="text-center mt-6 p-4 bg-base-200 rounded-lg">
-                            <p className="text-xs font-bold text-gray-600">
-                                🔒 Your information is safe with us
-                            </p>
-                        </div>
+                        <p className="text-center mt-4 text-[10px] text-gray-400 font-medium">
+                            🔒 Your information is safe with us
+                        </p>
                     </div>
                 </div>
             </div>
