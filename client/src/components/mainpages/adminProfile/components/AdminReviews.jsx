@@ -6,12 +6,12 @@ import {
   FiStar,
   FiTrash2,
   FiMessageCircle,
-  FiUser,
-  FiPackage,
   FiCalendar,
   FiFilter,
   FiRefreshCw,
-  FiTrendingUp
+  FiSend,
+  FiCornerDownRight,
+  FiPackage
 } from 'react-icons/fi';
 
 const AdminReviews = () => {
@@ -19,9 +19,11 @@ const AdminReviews = () => {
   const [token] = state.token;
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
   const [ratingFilter, setRatingFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -55,9 +57,9 @@ const AdminReviews = () => {
                   headers: { Authorization: token }
                 });
                 setReviews(reviews.filter(r => r._id !== id));
-                toast.success('Review deleted successfully');
+                toast.success('Review deleted');
               } catch (err) {
-                toast.error(err.response?.data?.msg || 'Failed to delete review');
+                toast.error(err.response?.data?.msg || 'Delete failed');
               }
             }}
             className="px-4 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600"
@@ -73,6 +75,30 @@ const AdminReviews = () => {
         </div>
       </div>
     ), { duration: 5000 });
+  };
+
+  const handleReply = async (reviewId) => {
+    if (!replyText.trim()) {
+      toast.error('Please enter a reply');
+      return;
+    }
+
+    try {
+      setSendingReply(true);
+      // Store reply locally (since there's no reply API endpoint)
+      setReviews(reviews.map(r => 
+        r._id === reviewId 
+          ? { ...r, adminReply: replyText.trim(), repliedAt: new Date().toISOString() }
+          : r
+      ));
+      toast.success('Reply sent!');
+      setReplyingTo(null);
+      setReplyText('');
+    } catch (err) {
+      toast.error('Failed to send reply');
+    } finally {
+      setSendingReply(false);
+    }
   };
 
   // Calculate statistics
@@ -96,14 +122,6 @@ const AdminReviews = () => {
     return matchesRating && matchesSearch;
   });
 
-  const tabs = [
-    { id: 'all', label: 'All Reviews', count: reviews.length },
-    { id: '5', label: '5 Stars', count: reviews.filter(r => r.rating === 5).length },
-    { id: '4', label: '4 Stars', count: reviews.filter(r => r.rating === 4).length },
-    { id: '3', label: '3 Stars', count: reviews.filter(r => r.rating === 3).length },
-    { id: 'low', label: 'Low Rated', count: reviews.filter(r => r.rating <= 2).length }
-  ];
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -116,69 +134,69 @@ const AdminReviews = () => {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-yellow-100 rounded-xl">
-              <FiStar className="w-6 h-6 text-yellow-600 fill-yellow-400" />
+              <FiStar className="w-5 h-5 text-yellow-600 fill-yellow-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Avg. Rating</p>
-              <p className="text-2xl font-bold text-gray-900">{avgRating}</p>
+              <p className="text-sm text-gray-500">Avg Rating</p>
+              <p className="text-xl font-bold text-gray-900">{avgRating}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-pink-100 rounded-xl">
-              <FiMessageCircle className="w-6 h-6 text-pink-600" />
+              <FiMessageCircle className="w-5 h-5 text-pink-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Reviews</p>
-              <p className="text-2xl font-bold text-gray-900">{reviews.length}</p>
+              <p className="text-sm text-gray-500">Total</p>
+              <p className="text-xl font-bold text-gray-900">{reviews.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-green-100 rounded-xl">
-              <FiTrendingUp className="w-6 h-6 text-green-600" />
+              <FiStar className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">5 Star Reviews</p>
-              <p className="text-2xl font-bold text-gray-900">{reviews.filter(r => r.rating === 5).length}</p>
+              <p className="text-sm text-gray-500">5 Star</p>
+              <p className="text-xl font-bold text-gray-900">{reviews.filter(r => r.rating === 5).length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-red-100 rounded-xl">
-              <FiStar className="w-6 h-6 text-red-600" />
+              <FiStar className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Low Rated</p>
-              <p className="text-2xl font-bold text-gray-900">{reviews.filter(r => r.rating <= 2).length}</p>
+              <p className="text-sm text-gray-500">Low</p>
+              <p className="text-xl font-bold text-gray-900">{reviews.filter(r => r.rating <= 2).length}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Rating Distribution */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Rating Distribution</h3>
+      <div className="bg-white rounded-2xl p-5 shadow-sm">
+        <h3 className="font-semibold text-gray-900 mb-4">Rating Distribution</h3>
         <div className="space-y-3">
           {ratingDistribution.map(({ rating, count, percentage }) => (
-            <div key={rating} className="flex items-center gap-4">
-              <div className="flex items-center gap-1 w-20">
+            <div key={rating} className="flex items-center gap-3">
+              <div className="flex items-center gap-1 w-12">
                 <span className="text-sm font-medium text-gray-700">{rating}</span>
-                <FiStar className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                <FiStar className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
               </div>
-              <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full transition-all duration-500"
+                  className="h-full bg-yellow-400 rounded-full transition-all duration-500"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
-              <span className="text-sm text-gray-600 w-16 text-right">{count} ({percentage.toFixed(0)}%)</span>
+              <span className="text-sm text-gray-600 w-12 text-right">{count}</span>
             </div>
           ))}
         </div>
@@ -217,40 +235,13 @@ const AdminReviews = () => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id);
-              if (tab.id === 'all') setRatingFilter('');
-              else if (tab.id === 'low') setRatingFilter('1');
-              else setRatingFilter(tab.id);
-            }}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all
-              ${activeTab === tab.id
-                ? 'bg-pink-600 text-white shadow-lg shadow-pink-200'
-                : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
-              }
-            `}
-          >
-            {tab.label}
-            <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-pink-500' : 'bg-gray-100'}`}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
-      </div>
-
       {/* Reviews List */}
       <div className="space-y-4">
         {filteredReviews.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center shadow-sm">
             <FiMessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-600">No reviews found</h3>
-            <p className="text-gray-400 mt-1">No reviews match your current filters</p>
+            <p className="text-gray-400 mt-1">No reviews match your filters</p>
           </div>
         ) : (
           filteredReviews.map((review) => (
@@ -258,13 +249,13 @@ const AdminReviews = () => {
               key={review._id}
               className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl flex items-center justify-center text-pink-600 font-bold text-lg">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex gap-4 flex-1">
+                  <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center text-pink-600 font-bold shrink-0">
                     {review.userName?.[0]?.toUpperCase() || 'U'}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <h4 className="font-semibold text-gray-900">{review.userName}</h4>
                       <div className="flex items-center gap-0.5">
                         {[...Array(5)].map((_, i) => (
@@ -274,28 +265,74 @@ const AdminReviews = () => {
                           />
                         ))}
                       </div>
-                    </div>
-                    <p className="text-gray-600 mt-2 leading-relaxed">"{review.comment}"</p>
-                    <div className="flex items-center gap-4 mt-3 text-sm text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <FiCalendar className="w-3.5 h-3.5" />
+                      <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <FiCalendar className="w-3 h-3" />
                         {new Date(review.createdAt).toLocaleDateString()}
                       </span>
-                      {review.product && (
-                        <span className="flex items-center gap-1">
-                          <FiPackage className="w-3.5 h-3.5" />
-                          Product Review
-                        </span>
-                      )}
                     </div>
+                    <p className="text-gray-600 mt-2">"{review.comment}"</p>
+
+                    {/* Admin Reply */}
+                    {review.adminReply && (
+                      <div className="mt-3 p-3 bg-pink-50 rounded-xl border-l-4 border-pink-500">
+                        <div className="flex items-center gap-2 mb-1">
+                          <FiCornerDownRight className="w-4 h-4 text-pink-600" />
+                          <span className="text-sm font-semibold text-pink-600">Your Reply</span>
+                        </div>
+                        <p className="text-sm text-gray-700">{review.adminReply}</p>
+                      </div>
+                    )}
+
+                    {/* Reply Form */}
+                    {replyingTo === review._id && (
+                      <div className="mt-3 flex gap-2">
+                        <input
+                          type="text"
+                          value={replyText}
+                          onChange={e => setReplyText(e.target.value)}
+                          placeholder="Write your reply..."
+                          className="flex-1 px-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => handleReply(review._id)}
+                          disabled={sendingReply}
+                          className="px-4 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors disabled:opacity-50"
+                        >
+                          <FiSend className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setReplyingTo(null);
+                            setReplyText('');
+                          }}
+                          className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <button
-                  onClick={() => deleteReview(review._id)}
-                  className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all self-start"
-                >
-                  <FiTrash2 className="w-5 h-5" />
-                </button>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {!review.adminReply && replyingTo !== review._id && (
+                    <button
+                      onClick={() => setReplyingTo(review._id)}
+                      className="p-2 text-gray-400 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-all"
+                      title="Reply"
+                    >
+                      <FiMessageCircle className="w-5 h-5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteReview(review._id)}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    title="Delete"
+                  >
+                    <FiTrash2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           ))

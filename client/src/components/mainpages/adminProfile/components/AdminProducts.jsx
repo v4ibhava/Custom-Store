@@ -1,19 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { GlobalState } from '../../../../GlobalState';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   FiPlus,
   FiEdit2,
   FiTrash2,
   FiSearch,
-  FiGrid,
-  FiList,
+  FiUploadCloud,
+  FiX,
   FiPackage,
   FiTag,
   FiDollarSign,
-  FiBox
+  FiBox,
+  FiFileText,
+  FiImage,
+  FiList,
+  FiGrid,
+  FiList as FiListIcon
 } from 'react-icons/fi';
 
 const AdminProducts = () => {
@@ -21,12 +25,24 @@ const AdminProducts = () => {
   const [token] = state.token;
   const [products, setProducts] = state.productAPI.products;
   const [categories] = state.categoriesAPI.categories;
-  const navigate = useNavigate();
+  const { getProducts } = state.productAPI;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [viewMode, setViewMode] = useState('grid');
-  const [activeTab, setActiveTab] = useState('all');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState(null);
+
+  const [newProduct, setNewProduct] = useState({
+    product_id: '',
+    title: '',
+    description: '',
+    price: '',
+    category: '',
+    images: null,
+    content: '',
+  });
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,6 +50,85 @@ const AdminProducts = () => {
     const matchesCategory = !categoryFilter || product.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct({ ...newProduct, [name]: value });
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    reader.readAsDataURL(file);
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await axios.post("/api/upload", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setNewProduct({ ...newProduct, images: res.data });
+      toast.success('Image uploaded!');
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Upload failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newProduct.images) {
+      toast.error('Please upload an image');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      Object.entries(newProduct).forEach(([key, value]) => {
+        if (key === 'images') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, value);
+        }
+      });
+
+      await axios.post("/api/products", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Product created!");
+      await getProducts();
+      setShowAddForm(false);
+      setNewProduct({
+        product_id: '',
+        title: '',
+        description: '',
+        price: '',
+        category: '',
+        images: null,
+        content: '',
+      });
+      setPreview(null);
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Failed to create product");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const deleteProduct = async (id) => {
     toast((t) => (
@@ -48,9 +143,9 @@ const AdminProducts = () => {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 setProducts(products.filter(p => p._id !== id));
-                toast.success('Product deleted successfully');
+                toast.success('Product deleted');
               } catch (err) {
-                toast.error(err.response?.data?.msg || 'Failed to delete product');
+                toast.error(err.response?.data?.msg || 'Delete failed');
               }
             }}
             className="px-4 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600"
@@ -68,89 +163,210 @@ const AdminProducts = () => {
     ), { duration: 5000 });
   };
 
-  const tabs = [
-    { id: 'all', label: 'All Products', icon: FiPackage },
-    { id: 'add', label: 'Add Product', icon: FiPlus },
-    { id: 'categories', label: 'Categories', icon: FiTag }
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id);
-              if (tab.id === 'add') navigate('/create_product');
-              if (tab.id === 'categories') navigate('/category');
-            }}
-            className={`
-              flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all
-              ${activeTab === tab.id
-                ? 'bg-pink-600 text-white shadow-lg shadow-pink-200'
-                : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
-              }
-            `}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Products</h2>
+          <p className="text-sm text-gray-500">{products.length} products in catalog</p>
+        </div>
+        <button
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="flex items-center gap-2 px-5 py-2.5 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors shadow-lg shadow-pink-200"
+        >
+          {showAddForm ? <FiX className="w-5 h-5" /> : <FiPlus className="w-5 h-5" />}
+          {showAddForm ? 'Cancel' : 'Add Product'}
+        </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-pink-100 rounded-xl">
-              <FiPackage className="w-5 h-5 text-pink-600" />
+      {/* Add Product Form */}
+      {showAddForm && (
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Product</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="flex items-center gap-2">
+                    <FiBox className="w-4 h-4" />
+                    Product ID *
+                  </div>
+                </label>
+                <input
+                  type="text"
+                  name="product_id"
+                  value={newProduct.product_id}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                  placeholder="e.g., cake-001"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="flex items-center gap-2">
+                    <FiTag className="w-4 h-4" />
+                    Title *
+                  </div>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={newProduct.title}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                  placeholder="Product name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="flex items-center gap-2">
+                    <FiDollarSign className="w-4 h-4" />
+                    Price *
+                  </div>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <input
+                    type="number"
+                    name="price"
+                    value={newProduct.price}
+                    onChange={handleChange}
+                    required
+                    className="w-full pl-8 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="flex items-center gap-2">
+                    <FiList className="w-4 h-4" />
+                    Category *
+                  </div>
+                </label>
+                <select
+                  name="category"
+                  value={newProduct.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                >
+                  <option value="">Select Category</option>
+                  {categories?.map((cat) => (
+                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
+
             <div>
-              <p className="text-sm text-gray-500">Total Products</p>
-              <p className="text-xl font-bold text-gray-900">{products.length}</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="flex items-center gap-2">
+                  <FiFileText className="w-4 h-4" />
+                  Description *
+                </div>
+              </label>
+              <textarea
+                name="description"
+                value={newProduct.description}
+                onChange={handleChange}
+                required
+                rows="2"
+                className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                placeholder="Short product description"
+              />
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-xl">
-              <FiTag className="w-5 h-5 text-green-600" />
-            </div>
+
             <div>
-              <p className="text-sm text-gray-500">Categories</p>
-              <p className="text-xl font-bold text-gray-900">{categories.length}</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="flex items-center gap-2">
+                  <FiFileText className="w-4 h-4" />
+                  Content *
+                </div>
+              </label>
+              <textarea
+                name="content"
+                value={newProduct.content}
+                onChange={handleChange}
+                required
+                rows="2"
+                className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
+                placeholder="Detailed product content"
+              />
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <FiDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
+
+            {/* Image Upload */}
             <div>
-              <p className="text-sm text-gray-500">Avg. Price</p>
-              <p className="text-xl font-bold text-gray-900">
-                ₹{products.length ? (products.reduce((a, p) => a + (p.price || 0), 0) / products.length).toFixed(0) : 0}
-              </p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="flex items-center gap-2">
+                  <FiImage className="w-4 h-4" />
+                  Product Image *
+                </div>
+              </label>
+              <div className="flex items-center gap-4">
+                {preview ? (
+                  <div className="relative">
+                    <img src={preview} alt="Preview" className="w-24 h-24 object-cover rounded-xl" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPreview(null);
+                        setNewProduct({ ...newProduct, images: null });
+                      }}
+                      className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    >
+                      <FiX className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-colors">
+                    <FiUploadCloud className="w-6 h-6 text-gray-400" />
+                    <span className="text-xs text-gray-500 mt-1">Upload</span>
+                    <input
+                      type="file"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                  </label>
+                )}
+              </div>
             </div>
-          </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddForm(false);
+                  setPreview(null);
+                  setNewProduct({
+                    product_id: '',
+                    title: '',
+                    description: '',
+                    price: '',
+                    category: '',
+                    images: null,
+                    content: '',
+                  });
+                }}
+                className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-5 py-2.5 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors font-medium disabled:opacity-50"
+              >
+                {loading ? 'Creating...' : 'Create Product'}
+              </button>
+            </div>
+          </form>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-100 rounded-xl">
-              <FiBox className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Sold</p>
-              <p className="text-xl font-bold text-gray-900">
-                {products.reduce((a, p) => a + (p.sold || 0), 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Search & Filters */}
       <div className="bg-white rounded-2xl p-4 shadow-sm">
@@ -186,7 +402,7 @@ const AdminProducts = () => {
               onClick={() => setViewMode('list')}
               className={`p-2.5 rounded-xl transition-colors ${viewMode === 'list' ? 'bg-pink-100 text-pink-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
             >
-              <FiList className="w-5 h-5" />
+              <FiListIcon className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -206,13 +422,7 @@ const AdminProducts = () => {
                   alt={product.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => navigate(`/edit-product/${product._id}`)}
-                    className="p-2 bg-white rounded-xl shadow-lg hover:bg-pink-50 transition-colors"
-                  >
-                    <FiEdit2 className="w-4 h-4 text-pink-600" />
-                  </button>
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => deleteProduct(product._id)}
                     className="p-2 bg-white rounded-xl shadow-lg hover:bg-red-50 transition-colors"
@@ -271,13 +481,7 @@ const AdminProducts = () => {
                     </td>
                     <td className="px-6 py-4 text-gray-600">{product.sold || 0}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => navigate(`/edit-product/${product._id}`)}
-                          className="p-2 hover:bg-pink-50 rounded-lg transition-colors"
-                        >
-                          <FiEdit2 className="w-4 h-4 text-pink-600" />
-                        </button>
+                      <div className="flex items-center justify-end">
                         <button
                           onClick={() => deleteProduct(product._id)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
@@ -298,14 +502,7 @@ const AdminProducts = () => {
         <div className="bg-white rounded-2xl p-12 text-center shadow-sm">
           <FiPackage className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-600">No products found</h3>
-          <p className="text-gray-400 mt-1">Try adjusting your search or filters</p>
-          <button
-            onClick={() => navigate('/create_product')}
-            className="mt-4 px-6 py-2.5 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors inline-flex items-center gap-2"
-          >
-            <FiPlus className="w-4 h-4" />
-            Add Product
-          </button>
+          <p className="text-gray-400 mt-1">Add your first product to get started</p>
         </div>
       )}
     </div>
