@@ -30,7 +30,7 @@ function Pages() {
 
     return (
         <Routes>
-            <Route path="/" element={<Products />} />
+            <Route path="/" element={isAdmin ? <AdminProfile /> : <Products />} />
             <Route path="/detail/:id" element={<DetailProduct />} />
             <Route path="/login" element={<Login setEmail={setEmail} />} />
             <Route path="/signup" element={<Signup setEmail={setEmail} />} />

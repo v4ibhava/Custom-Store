@@ -24,6 +24,20 @@ const Profile = () => {
   const navigate = useNavigate();
   const [token] = state.token;
 
+  const [settings] = state?.settingsAPI?.settings || [{}];
+  const storeName = settings?.storeName || 'Cake Avenue';
+
+  const getInitials = (name) => {
+    if (!name) return 'CA';
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+  const initials = getInitials(storeName);
+
+
   const [coupons, setCoupons] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const activeCouponsCount = coupons.filter(c => c.isActive).length;
@@ -107,7 +121,6 @@ const Profile = () => {
       title: 'Settings',
       items: [
         { id: 'addresses', label: 'Addresses', icon: FiMapPin, color: 'text-emerald-500 bg-emerald-50' },
-        { id: 'payments', label: 'Payments', icon: FiCreditCard, color: 'text-indigo-500 bg-indigo-50' },
       ]
     },
     {
@@ -136,7 +149,7 @@ const Profile = () => {
                   <p className="text-pink-100 font-medium text-sm mt-0.5 opacity-90">{user?.email}</p>
                   <div className="flex gap-2 mt-3 flex-wrap justify-center sm:justify-start">
                     <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-wider">
-                      {user?.role === 1 ? 'Admin' : 'Preferred Customer'}
+                      {(user?.role === 'admin' || user?.role === 1) ? 'Admin' : 'Preferred Customer'}
                     </span>
                     <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-wider">
                       Since {new Date(user?.createdAt).getFullYear()}
@@ -259,9 +272,10 @@ const Profile = () => {
         <div className="p-3 sm:p-5 lg:p-6">
           <div className="flex items-center gap-3 mb-4 lg:mb-6 cursor-pointer" onClick={() => setActiveSection('profile')}>
             <div className="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm shadow-pink-200 shrink-0">
-              CA
+              {initials}
             </div>
-            <span className="font-black text-base tracking-tight text-gray-900">Cake Avenue</span>
+            <span className="font-black text-base tracking-tight text-gray-900">{storeName}</span>
+
           </div>
 
           {/* Desktop Nav */}

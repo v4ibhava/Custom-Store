@@ -18,7 +18,7 @@ const UserAPI = (token) => {
           });
 
           setIsLogged(true);
-          res.data.role === 1 ? setIsAdmin(true) : setIsAdmin(false);
+          (res.data.role === 'admin' || res.data.role === 1) ? setIsAdmin(true) : setIsAdmin(false);
           setUser(res.data);
 
           const cartRes = await axios.get('/user/cart', {

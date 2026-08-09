@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { GlobalState } from '../../../GlobalState';
 import { Toaster, toast } from 'react-hot-toast';
@@ -19,7 +19,9 @@ import {
   FiUsers,
   FiTrendingUp,
   FiActivity,
-  FiGrid
+  FiGrid,
+  FiSettings,
+  FiExternalLink
 } from 'react-icons/fi';
 
 // Admin Sub-components
@@ -29,13 +31,14 @@ import AdminCategories from './components/AdminCategories';
 import AdminReviews from './components/AdminReviews';
 import AdminCoupons from './components/AdminCoupons';
 import AdminSales from './components/AdminSales';
+import AdminSettings from './components/AdminSettings';
 
 const AdminProfile = () => {
   const state = useContext(GlobalState);
   const [, setIsLogged] = state.userAPI.isLogged;
   const [, setIsAdmin] = state.userAPI.isAdmin;
   const [user] = state.userAPI.user;
-  const [activeSection, setActiveSection] = useState('orders'); // Changed default to 'orders' or 'dashboard'
+  const [activeSection, setActiveSection] = useState('dashboard');
   const navigate = useNavigate();
 
   const logoutUser = useCallback(async () => {
@@ -53,32 +56,36 @@ const AdminProfile = () => {
 
   const menuSections = [
     {
-      title: 'Orders Management',
+      title: 'Main',
       items: [
-        { id: 'orders', label: 'All Orders', icon: FiShoppingBag, color: 'text-pink-500 bg-pink-50' }
+        { id: 'dashboard', label: 'Dashboard', icon: FiGrid, color: 'text-indigo-500 bg-indigo-50' }
       ]
     },
     {
-      title: 'Product Management',
+      title: 'Catalog & Orders',
       items: [
-        { id: 'products', label: 'Products Master', icon: FiBox, color: 'text-amber-500 bg-amber-50' },
-        { id: 'categories', label: 'Categories', icon: FiLayers, color: 'text-emerald-500 bg-emerald-50' },
+        { id: 'orders', label: 'Orders', icon: FiShoppingBag, color: 'text-pink-500 bg-pink-50' },
+        { id: 'products', label: 'Products', icon: FiBox, color: 'text-amber-500 bg-amber-50' },
+        { id: 'categories', label: 'Categories', icon: FiLayers, color: 'text-emerald-500 bg-emerald-50' }
       ]
     },
     {
-      title: 'Sales Reports',
+      title: 'Marketing & Feedback',
       items: [
-        { id: 'sales', label: 'Revenue & Reports', icon: FiActivity, color: 'text-blue-500 bg-blue-50' }
+        { id: 'sales', label: 'Sales Reports', icon: FiActivity, color: 'text-blue-500 bg-blue-50' },
+        { id: 'coupons', label: 'Coupons', icon: FiTag, color: 'text-purple-500 bg-purple-50' },
+        { id: 'reviews', label: 'Customer Reviews', icon: FiStar, color: 'text-rose-500 bg-rose-50' }
       ]
     },
     {
-      title: 'Marketing Tools',
+      title: 'Store Configuration',
       items: [
-        { id: 'coupons', label: 'Coupons Control', icon: FiTag, color: 'text-purple-500 bg-purple-50' },
-        { id: 'reviews', label: 'Reviews Moderation', icon: FiStar, color: 'text-rose-500 bg-rose-50' }
+        { id: 'settings', label: 'Store & Payments', icon: FiSettings, color: 'text-slate-500 bg-slate-50' }
       ]
     }
   ];
+
+
 
   const renderContent = () => {
     switch (activeSection) {
@@ -119,17 +126,20 @@ const AdminProfile = () => {
         return <AdminReviews />;
       case 'coupons':
         return <AdminCoupons />;
+      case 'settings':
+        return <AdminSettings />;
       default:
         return <AdminOrders />;
     }
   };
 
+
   return (
-    <div className="admin-dark-theme flex flex-col lg:flex-row min-h-screen bg-[#FAFAFA]">
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-[#FAFAFA]">
       <Toaster position="top-right" />
-      {/* Premium Admin Sidebar */}
-      <div className="w-full lg:w-80 bg-white border-b lg:border-r border-gray-100 flex flex-col transition-all relative z-10 lg:sticky lg:top-0 h-auto lg:h-screen shadow-xl shadow-gray-200/20">
-        <div className="p-6 lg:p-10">
+      {/* Premium Admin Sidebar - Independent Smooth Scroll */}
+      <div className="w-full lg:w-80 bg-white border-b lg:border-r border-gray-100 flex flex-col shrink-0 lg:h-screen relative z-10 shadow-xl shadow-gray-200/20 overflow-y-auto custom-scrollbar">
+        <div className="p-6 lg:p-10 flex-1 overflow-y-auto custom-scrollbar">
           <div className="flex items-center gap-4 mb-6 lg:mb-10 cursor-pointer" onClick={() => setActiveSection('dashboard')}>
             <div className="w-10 h-10 bg-[#F3E4C9] rounded-xl flex items-center justify-center text-[#111111] font-black text-xl shadow-lg shadow-[#F3E4C9]/20 shrink-0">
               CA
@@ -149,22 +159,22 @@ const AdminProfile = () => {
                       key={item.id}
                       onClick={() => setActiveSection(item.id)}
                       className={`
-                        w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all group
+                        w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all group cursor-pointer
                         ${activeSection === item.id
-                          ? 'bg-[#F3E4C9] text-[#111111] shadow-xl shadow-[#F3E4C9]/20 ring-4 ring-[#F3E4C9]/10'
-                          : 'text-gray-500 hover:bg-gray-800 hover:text-gray-200'
+                          ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/25'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                         }
                       `}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-lg transition-colors ${activeSection === item.id ? 'bg-black/5' : item.color}`}>
+                        <div className={`p-2 rounded-lg transition-colors ${activeSection === item.id ? 'bg-white/20 text-white' : item.color}`}>
                           <item.icon className="size-4" />
                         </div>
-                        <span className={`text-sm font-bold ${activeSection === item.id ? 'text-[#111111]' : 'text-[inherit]'}`}>
+                        <span className={`text-sm font-bold ${activeSection === item.id ? 'text-white' : 'text-gray-700'}`}>
                           {item.label}
                         </span>
                       </div>
-                      {activeSection === item.id && <motion.div layoutId="activeDotAdmin" className="w-1.5 h-1.5 bg-pink-500 rounded-full shadow-lg" />}
+                      {activeSection === item.id && <motion.div layoutId="activeDotAdmin" className="w-2 h-2 bg-white rounded-full shadow" />}
                     </button>
                   ))}
                 </div>
@@ -179,10 +189,10 @@ const AdminProfile = () => {
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
                 className={`
-                  shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold whitespace-nowrap
+                  shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold whitespace-nowrap cursor-pointer
                   ${activeSection === item.id
-                    ? 'bg-[#F3E4C9] text-[#111111] shadow-md shadow-[#F3E4C9]/20 ring-2 ring-[#F3E4C9]/10'
-                    : 'bg-white text-gray-500 hover:bg-gray-800 hover:text-gray-200'
+                    ? 'bg-pink-600 text-white shadow-md shadow-pink-600/20'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-gray-100'
                   }
                 `}
               >
@@ -191,21 +201,33 @@ const AdminProfile = () => {
               </button>
             ))}
           </nav>
+
         </div>
 
-        <div className="mt-auto p-4 lg:p-10 border-t border-gray-50 bg-white">
+
+        <div className="mt-auto p-4 lg:p-10 border-t border-gray-100 bg-white space-y-3 shrink-0">
+          <Link
+            to="/shop"
+            className="w-full flex items-center justify-center gap-2 lg:gap-3 py-3 bg-gray-50 text-gray-700 font-bold text-sm rounded-2xl hover:bg-gray-100 transition-all border border-gray-200"
+          >
+            <FiExternalLink size={16} />
+            Preview Customer Store
+          </Link>
           <button
             onClick={logoutUser}
-            className="w-full flex items-center justify-center gap-2 lg:gap-3 py-3 lg:py-4 bg-red-50 text-red-500 font-bold text-sm lg:text-base rounded-2xl hover:bg-red-100 hover:text-red-600 transition-all border border-transparent"
+            className="w-full flex items-center justify-center gap-2 lg:gap-3 py-3 lg:py-4 bg-red-50 text-red-500 font-bold text-sm lg:text-base rounded-2xl hover:bg-red-100 hover:text-red-600 transition-all border border-transparent cursor-pointer"
           >
             <FiLogOut size={18} />
             Sign Out Admin
           </button>
         </div>
+
       </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto lg:max-h-screen custom-scrollbar w-full bg-[#f8f9fa]">
+      {/* Main Content Area - Independent Smooth Scroll */}
+      <main className="flex-1 lg:h-screen overflow-y-auto p-4 md:p-8 lg:p-12 custom-scrollbar w-full bg-[#FAFAFA]">
+
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeSection}

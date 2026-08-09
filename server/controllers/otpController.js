@@ -12,19 +12,27 @@ const createRefreshToken = (payload) => {
 };
 
 const sendOtpEmail = async (email, otp) => {
+    const user = process.env.EMAIL_USER || process.env.SMTP_USER;
+    const rawPass = process.env.EMAIL_PASS || process.env.SMTP_PASSWORD;
+    const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
+
+    console.log(`🔑 [OTP CODE GENERATED]: Email: ${email} | OTP: ${otp}`);
+
+    if (!user || !pass) {
+        console.warn('⚠️ [OTP WARN]: Missing EMAIL_USER/SMTP_USER or EMAIL_PASS/SMTP_PASSWORD in .env');
+        return;
+    }
+
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
+            auth: { user, pass }
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: process.env.SMTP_FROM_EMAIL || user,
             to: email,
-            subject: 'Cake Avenue',
+            subject: 'Cake Avenue - Verification OTP',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Your One-Time Password (OTP)</h2>
@@ -45,10 +53,14 @@ const sendOtpEmail = async (email, otp) => {
         };
 
         await transporter.sendMail(mailOptions);
-        console.log(`OTP sent successfully to ${email}`);
+        console.log(`✅ OTP email sent successfully to ${email}`);
     } catch (error) {
-        console.error('Error sending OTP email:', error);
-        throw new Error('Failed to send OTP email. Please check your email configuration.');
+        console.error('⚠️ Error sending OTP email:', error.message);
+        console.log(`💡 [DEV OTP FALLBACK]: You can use OTP ${otp} to log in / verify ${email}.`);
+        // In local development mode, do not block user login/signup flow if Gmail App Password is invalid or revoked
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('Failed to send OTP email. Please check your email configuration.');
+        }
     }
 };
 

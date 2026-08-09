@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const categoryModel = require('../models/categoryModels');
 
 const categoryController = {
@@ -34,6 +35,9 @@ const categoryController = {
     },
     deleteCategory : async (req,res) => {
         try{
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                return res.status(400).json({ msg: "Invalid Category ID" });
+            }
             await categoryModel.findByIdAndDelete(req.params.id);
             res.json({msg:"Deleted Category Success"});
         }catch(err){
@@ -44,6 +48,9 @@ const categoryController = {
     },
     updateCategory : async (req,res) => {
         try{
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                return res.status(400).json({ msg: "Invalid Category ID" });
+            }
             const { name } = req.body;
             const updateCategory = await categoryModel.findByIdAndUpdate({_id:req.params.id},{name});
             
@@ -54,6 +61,7 @@ const categoryController = {
             });
         }
     }
+
 };
 
 module.exports = categoryController;

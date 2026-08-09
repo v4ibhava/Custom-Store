@@ -46,7 +46,7 @@ const reviewController = {
 
             const user = await Users.findById(req.user.id);
             // Allow user to delete their own review OR admin to delete any review
-            if (review.user.toString() !== req.user.id && user.role !== 1) {
+            if (review.user.toString() !== req.user.id && user.role !== 'admin' && user.role !== 1) {
                 return res.status(400).json({ msg: "Unauthorized." });
             }
 

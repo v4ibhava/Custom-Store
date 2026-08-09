@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import axios from 'axios';
-import { GlobalState } from '../../../../GlobalState';
 import toast from 'react-hot-toast';
+import { GlobalState } from '../../../../GlobalState';
+import { categoryService } from '../../../../services';
 import {
   FiPlus,
   FiTrash2,
@@ -34,9 +34,7 @@ const AdminCategories = () => {
 
     try {
       setLoading(true);
-      await axios.post('/api/category', { name: newCategory.trim() }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await categoryService.createCategory(newCategory.trim(), token);
       setNewCategory('');
       await getCategories();
       toast.success('Category created!');
@@ -57,9 +55,7 @@ const AdminCategories = () => {
             onClick={async () => {
               toast.dismiss(t.id);
               try {
-                await axios.delete(`/api/category/${id}`, {
-                  headers: { Authorization: `Bearer ${token}` }
-                });
+                await categoryService.deleteCategory(id, token);
                 setCategories(categories.filter(c => c._id !== id));
                 toast.success('Category deleted');
               } catch (err) {
@@ -88,9 +84,7 @@ const AdminCategories = () => {
     }
 
     try {
-      await axios.put(`/api/category/${id}`, { name: editName.trim() }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await categoryService.updateCategory(id, editName.trim(), token);
       await getCategories();
       setEditingId(null);
       toast.success('Category updated');
@@ -98,6 +92,7 @@ const AdminCategories = () => {
       toast.error(err.response?.data?.msg || 'Update failed');
     }
   };
+
 
   const filteredCategories = categories.filter(cat =>
     cat.name?.toLowerCase().includes(searchTerm.toLowerCase())

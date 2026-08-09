@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import { GlobalState } from '../../../../GlobalState';
+import { couponService } from '../../../../services';
 import {
   FiTag,
   FiPlus,
@@ -24,14 +24,15 @@ const AdminCoupons = () => {
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
-        const res = await axios.get('/api/coupons');
-        setCoupons(res.data);
+        const data = await couponService.getCoupons();
+        setCoupons(data);
       } catch (err) {
         toast.error(err.response?.data?.msg || "Failed to fetch coupons");
       }
     };
     fetchCoupons();
   }, []);
+
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
@@ -47,7 +48,10 @@ const AdminCoupons = () => {
     isActive: true
   });
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const handleCreateCoupon = async () => {
+
     if (!newCoupon.code || !newCoupon.value) {
       toast.error('Please fill in required fields');
       return;
@@ -63,12 +67,12 @@ const AdminCoupons = () => {
 
     try {
       if (editingCoupon) {
-        const res = await axios.put(`/api/coupons/${editingCoupon._id}`, couponData, { headers: { Authorization: token } });
-        setCoupons(coupons.map(c => c._id === editingCoupon._id ? res.data.coupon : c));
+        const res = await couponService.updateCoupon(editingCoupon._id, couponData, token);
+        setCoupons(coupons.map(c => c._id === editingCoupon._id ? res.coupon : c));
         toast.success('Coupon updated successfully');
       } else {
-        const res = await axios.post('/api/coupons', couponData, { headers: { Authorization: token } });
-        setCoupons([...coupons, res.data.coupon]);
+        const res = await couponService.createCoupon(couponData, token);
+        setCoupons([...coupons, res.coupon]);
         toast.success('Coupon created successfully');
       }
 
@@ -107,7 +111,7 @@ const AdminCoupons = () => {
             onClick={async () => {
               toast.dismiss(t.id);
               try {
-                await axios.delete(`/api/coupons/${id}`, { headers: { Authorization: token } });
+                await couponService.deleteCoupon(id, token);
                 setCoupons(coupons.filter(c => c._id !== id));
                 toast.success('Coupon deleted successfully');
               } catch (err) {
@@ -131,12 +135,13 @@ const AdminCoupons = () => {
 
   const toggleActive = async (id, isActiveCurrent) => {
     try {
-      const res = await axios.put(`/api/coupons/${id}`, { isActive: !isActiveCurrent }, { headers: { Authorization: token } });
-      setCoupons(coupons.map(c => c._id === id ? res.data.coupon : c));
+      const res = await couponService.updateCoupon(id, { isActive: !isActiveCurrent }, token);
+      setCoupons(coupons.map(c => c._id === id ? res.coupon : c));
       toast.success('Coupon status updated');
     } catch (err) {
       toast.error("Failed to update status.");
     }
+
   };
 
   const copyCouponCode = (code) => {
@@ -445,6 +450,7 @@ const AdminCoupons = () => {
                   </label>
                   <input
                     type="date"
+                    min={todayStr}
                     value={newCoupon.validFrom}
                     onChange={e => setNewCoupon({ ...newCoupon, validFrom: e.target.value })}
                     className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
@@ -456,10 +462,12 @@ const AdminCoupons = () => {
                   </label>
                   <input
                     type="date"
+                    min={newCoupon.validFrom || todayStr}
                     value={newCoupon.validUntil}
                     onChange={e => setNewCoupon({ ...newCoupon, validUntil: e.target.value })}
                     className="w-full px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-pink-500"
                   />
+
                 </div>
               </div>
 

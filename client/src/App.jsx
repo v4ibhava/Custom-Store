@@ -1,25 +1,31 @@
-import React from "react";
+import React, { useContext } from "react";
 import Headers from "./components/headers/Headers";
+import Footer from "./components/footers/Footer";
 import Pages from "./components/mainpages/Pages";
 import { BrowserRouter as Router, useLocation } from "react-router-dom";
-import { DataProvider } from "./GlobalState";
+import { DataProvider, GlobalState } from "./GlobalState";
 import { Toaster } from "react-hot-toast";
 import "./index.css";
 
 function AppContent() {
   const location = useLocation();
+  const state = useContext(GlobalState);
+  const [isAdmin] = state?.userAPI?.isAdmin || [false];
   
-  // Routes where header should not be shown
+  // Routes where header/footer should not be shown
   const noHeaderRoutes = ['/login', '/signup', '/verify-otp', '/add-info'];
   const shouldShowHeader = !noHeaderRoutes.includes(location.pathname);
+  const shouldShowFooter = shouldShowHeader && !isAdmin;
 
   return (
     <div className="App pb-16 sm:pb-0">
       {shouldShowHeader && <Headers />}
       <Pages />
+      {shouldShowFooter && <Footer />}
     </div>
   );
 }
+
 
 function App() {
   return (

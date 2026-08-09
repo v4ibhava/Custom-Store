@@ -3,6 +3,7 @@ import axios from "axios";
 import useProductsAPI from "./api/ProductAPI";
 import UserAPI from "./api/UserAPI";
 import CategoryAPI from "./api/CategoryAPI";
+import useSettingsAPI from "./api/SettingsAPI";
 
 // Create context
 export const GlobalState = createContext();
@@ -34,8 +35,10 @@ export const DataProvider = ({ children }) => {
     refreshToken, 
     productAPI: useProductsAPI(),
     userAPI: UserAPI(token),
-    categoriesAPI: CategoryAPI()
+    categoriesAPI: CategoryAPI(),
+    settingsAPI: useSettingsAPI()
   };
+
 
   return (
     <GlobalState.Provider value={state}>

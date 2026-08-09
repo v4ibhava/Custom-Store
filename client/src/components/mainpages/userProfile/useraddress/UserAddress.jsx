@@ -76,16 +76,17 @@ const UserAddress = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <div>
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block">Street</label>
-          <input type="text" name="street" value={data.street} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="123 Baker St" />
+          <input type="text" name="street" value={data.street} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="123 Main St" />
         </div>
         <div>
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block">City</label>
-          <input type="text" name="city" value={data.city} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="Oven City" />
+          <input type="text" name="city" value={data.city} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="Metro City" />
         </div>
         <div>
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block">State</label>
-          <input type="text" name="state" value={data.state} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="Sweet State" />
+          <input type="text" name="state" value={data.state} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="Central State" />
         </div>
+
         <div>
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block">Postal Code</label>
           <input type="text" name="postalCode" value={data.postalCode} onChange={handleInputChange} required className="w-full bg-white border border-pink-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-100" placeholder="10001" />

@@ -25,6 +25,10 @@ const Checkout = () => {
 	const [user] = state.userAPI.user
 	const [selectedAddressId, setSelectedAddressId] = useState('')
 
+	const [settings] = state?.settingsAPI?.settings || [{}];
+	const storeName = settings?.storeName || 'Cake Avenue';
+
+
 	useEffect(() => {
 		const addrs = user?.addresses || []
 		if (!addrs.length) return
@@ -76,7 +80,8 @@ const Checkout = () => {
 				key,
 				amount: order.amount,
 				currency: order.currency,
-				name: 'Cake Avenue',
+				name: storeName,
+
 				description: 'Order Payment',
 				order_id: order.id,
 				prefill: { name: user?.name || '', email: user?.email || '' },

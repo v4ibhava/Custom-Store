@@ -1,6 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const dns = require('dns');
 require('dotenv').config();
+
+// Set reliable public DNS servers for MongoDB Atlas SRV resolution
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+    console.warn('DNS server configuration warning:', e.message);
+}
 const app = express();
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
@@ -44,6 +52,7 @@ app.use('/api/orders', require('./routes/orderRouter'));
 app.use('/api', require('./routes/reviewRouter'));
 app.use('/api', require('./routes/couponRouter'));
 app.use('/api', require('./routes/notificationRouter'));
+app.use('/api', require('./routes/settingsRouter'));
 
 // Connect MongoDB
 const URI = process.env.MONGODB_URI;

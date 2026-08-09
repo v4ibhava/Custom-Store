@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-    themes: cupcake --default;
-}
 
 /* --- Smooth Scrolling & Base --- */
 * {
@@ -14,40 +11,190 @@ html {
   text-size-adjust: 100%;
 }
 
-/* --- Custom Theme Variables --- */
-:root {
-  --cream-beige: #F5E6D3;
-  --cream-light: #FAF0E6;
-  --pink-primary: #E91E63;
-  --pink-light: #F8BBD0;
-  --pink-accent: #FF69B4;
-  --pink-blush: #FFF9FB;
-  --pink-soft: #FFEEF2;
-  --pink-rose: #FFF0F5;
-  --text-dark: #4A4A4A;
-  --text-light: #666666;
-  --radius-card: 1.25rem;
-  --shadow-card: 0 2px 16px rgba(233,30,99,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-card-hover: 0 8px 30px rgba(233,30,99,0.1), 0 4px 10px rgba(0,0,0,0.04);
-  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* ===================================================
+   COLOR THEMES (data-theme) — accent palette only
+   All themes are light-mode. Dark mode is separate.
+   =================================================== */
+
+/* Theme: Blush Rose (default warm pink) */
+:root, [data-theme="blush"] {
+  --theme-primary: #E91E63;
+  --theme-primary-hover: #D81B60;
+  --theme-primary-light: #FCE4EC;
+  --theme-accent: #FF69B4;
 }
+[data-theme="blush"] .bg-pink-600 { background-color: #E91E63 !important; }
+[data-theme="blush"] .hover\:bg-pink-700:hover { background-color: #D81B60 !important; }
+[data-theme="blush"] .text-pink-600 { color: #E91E63 !important; }
+
+/* Theme: Ocean Blue (cool ocean blue) */
+[data-theme="ocean"] {
+  --theme-primary: #0284C7;
+  --theme-primary-hover: #0369A1;
+  --theme-primary-light: #E0F2FE;
+  --theme-accent: #38BDF8;
+}
+[data-theme="ocean"] .bg-pink-600 { background-color: #0284C7 !important; }
+[data-theme="ocean"] .hover\:bg-pink-700:hover { background-color: #0369A1 !important; }
+[data-theme="ocean"] .text-pink-600 { color: #0284C7 !important; }
+[data-theme="ocean"] .shadow-pink-600\/20,
+[data-theme="ocean"] .shadow-pink-600\/25 {
+  box-shadow: 0 10px 25px rgba(2, 132, 199, 0.25) !important;
+}
+[data-theme="ocean"] .focus\:ring-pink-500 { --tw-ring-color: #38BDF8 !important; }
+[data-theme="ocean"] .focus\:border-pink-500 { border-color: #0284C7 !important; }
+[data-theme="ocean"] .focus\:ring-pink-200:focus { --tw-ring-color: #BAE6FD !important; }
+
+/* Theme: Emerald Green (organic green) */
+[data-theme="emerald"] {
+  --theme-primary: #059669;
+  --theme-primary-hover: #047857;
+  --theme-primary-light: #D1FAE5;
+  --theme-accent: #34D399;
+}
+[data-theme="emerald"] .bg-pink-600 { background-color: #059669 !important; }
+[data-theme="emerald"] .hover\:bg-pink-700:hover { background-color: #047857 !important; }
+[data-theme="emerald"] .text-pink-600 { color: #059669 !important; }
+[data-theme="emerald"] .shadow-pink-600\/20,
+[data-theme="emerald"] .shadow-pink-600\/25 {
+  box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25) !important;
+}
+[data-theme="emerald"] .focus\:ring-pink-500 { --tw-ring-color: #34D399 !important; }
+[data-theme="emerald"] .focus\:border-pink-500 { border-color: #059669 !important; }
+[data-theme="emerald"] .focus\:ring-pink-200:focus { --tw-ring-color: #A7F3D0 !important; }
+
+
+/* ===================================================
+   DARK MODE (data-mode="dark") — independent of color
+   =================================================== */
+[data-mode="dark"] body {
+  background-color: #0F172A !important;
+  color: #F1F5F9 !important;
+}
+[data-mode="dark"] .bg-white {
+  background-color: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+[data-mode="dark"] main {
+  background-color: #0F172A !important;
+}
+[data-mode="dark"] .bg-gray-50,
+[data-mode="dark"] .bg-gray-50\/50,
+[data-mode="dark"] .bg-pink-50\/30 {
+  background-color: #334155 !important;
+  color: #F1F5F9 !important;
+}
+[data-mode="dark"] .text-gray-900,
+[data-mode="dark"] .text-gray-800,
+[data-mode="dark"] .text-gray-700 {
+  color: #F1F5F9 !important;
+}
+[data-mode="dark"] .text-gray-500,
+[data-mode="dark"] .text-gray-600 {
+  color: #94A3B8 !important;
+}
+[data-mode="dark"] .border-gray-100,
+[data-mode="dark"] .border-gray-200 {
+  border-color: #334155 !important;
+}
+[data-mode="dark"] .bg-gray-100 {
+  background-color: #1E293B !important;
+}
+[data-mode="dark"] input,
+[data-mode="dark"] select,
+[data-mode="dark"] textarea {
+  background-color: #1E293B !important;
+  color: #F1F5F9 !important;
+  border-color: #475569 !important;
+}
+/* Dark mode: hover states */
+[data-mode="dark"] .hover\:bg-gray-100:hover {
+  background-color: #334155 !important;
+  color: #F1F5F9 !important;
+}
+[data-mode="dark"] .hover\:bg-gray-200\/60:hover {
+  background-color: #334155 !important;
+}
+[data-mode="dark"] .hover\:text-gray-900:hover {
+  color: #F1F5F9 !important;
+}
+/* Dark mode: sidebar icon badge backgrounds */
+[data-mode="dark"] .bg-indigo-50 { background-color: rgba(99,102,241,0.15) !important; }
+[data-mode="dark"] .bg-pink-50 { background-color: rgba(236,72,153,0.15) !important; }
+[data-mode="dark"] .bg-amber-50 { background-color: rgba(245,158,11,0.15) !important; }
+[data-mode="dark"] .bg-emerald-50 { background-color: rgba(16,185,129,0.15) !important; }
+[data-mode="dark"] .bg-blue-50 { background-color: rgba(59,130,246,0.15) !important; }
+[data-mode="dark"] .bg-purple-50 { background-color: rgba(168,85,247,0.15) !important; }
+[data-mode="dark"] .bg-rose-50 { background-color: rgba(244,63,94,0.15) !important; }
+[data-mode="dark"] .bg-slate-50 { background-color: rgba(148,163,184,0.15) !important; }
+/* Dark mode: section titles & muted labels */
+[data-mode="dark"] .text-gray-400 { color: #64748B !important; }
+[data-mode="dark"] .text-gray-300 { color: #94A3B8 !important; }
+/* Dark mode: shadow resets */
+[data-mode="dark"] .shadow-xl { box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important; }
+[data-mode="dark"] .shadow-gray-200\/20 { --tw-shadow-color: rgba(0,0,0,0.3) !important; }
+/* Dark mode: hardcoded page backgrounds used in storefront & admin */
+[data-mode="dark"] .bg-\[\#FAF0E6\] { background-color: #0F172A !important; }
+[data-mode="dark"] .bg-\[\#FAFAFA\] { background-color: #0F172A !important; }
+[data-mode="dark"] .bg-\[\#F3E4C9\] { background-color: #334155 !important; }
+[data-mode="dark"] .bg-\[\#F3E4C9\]\/30 { background-color: rgba(51,65,85,0.3) !important; }
+[data-mode="dark"] .bg-\[\#F3E4C9\]\/40 { background-color: rgba(51,65,85,0.4) !important; }
+[data-mode="dark"] .border-\[\#F3E4C9\] { border-color: #475569 !important; }
+[data-mode="dark"] .border-\[\#e8dcb9\] { border-color: #475569 !important; }
+/* Dark mode: red/amber UI elements */
+[data-mode="dark"] .bg-red-50 { background-color: rgba(239,68,68,0.1) !important; }
+[data-mode="dark"] .hover\:bg-red-100:hover { background-color: rgba(239,68,68,0.2) !important; }
+[data-mode="dark"] .bg-amber-50 { background-color: rgba(245,158,11,0.1) !important; }
+[data-mode="dark"] .bg-sky-50 { background-color: rgba(14,165,233,0.1) !important; }
+[data-mode="dark"] .bg-pink-50\/40 { background-color: rgba(236,72,153,0.08) !important; }
+/* Dark mode: card borders */
+[data-mode="dark"] .border-gray-100 { border-color: #334155 !important; }
+/* Dark mode: body background override */
+[data-mode="dark"] body { background-color: #0F172A !important; }
+
+/* ===================================================
+   UI STYLE (data-style) — shape language only
+   =================================================== */
+
+/* Style: Curvy (default — soft rounded organic shapes) */
+:root, [data-style="curvy"] {
+  --ui-radius-sm: 0.75rem;
+  --ui-radius-md: 1rem;
+  --ui-radius-lg: 1.5rem;
+  --ui-radius-xl: 2rem;
+  --ui-radius-full: 9999px;
+}
+
+/* Style: Edgy (sharp corners, hard geometric lines) */
+[data-style="edgy"] {
+  --ui-radius-sm: 0.125rem;
+  --ui-radius-md: 0.25rem;
+  --ui-radius-lg: 0.375rem;
+  --ui-radius-xl: 0.5rem;
+  --ui-radius-full: 0.25rem;
+}
+[data-style="edgy"] .rounded-full { border-radius: var(--ui-radius-full) !important; }
+[data-style="edgy"] .rounded-xl { border-radius: var(--ui-radius-md) !important; }
+[data-style="edgy"] .rounded-2xl { border-radius: var(--ui-radius-lg) !important; }
+[data-style="edgy"] .rounded-3xl { border-radius: var(--ui-radius-xl) !important; }
+[data-style="edgy"] .rounded-lg { border-radius: var(--ui-radius-sm) !important; }
+[data-style="edgy"] .rounded-md { border-radius: 0.125rem !important; }
+[data-style="edgy"] img { border-radius: var(--ui-radius-md) !important; }
+[data-style="edgy"] button { border-radius: var(--ui-radius-sm) !important; }
+[data-style="edgy"] input,
+[data-style="edgy"] select,
+[data-style="edgy"] textarea { border-radius: var(--ui-radius-sm) !important; }
+
 
 /* --- Body --- */
 body {
-  background-color: var(--cream-light);
+  background-color: #FAFAFA;
   color: var(--text-dark);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* === USER-SIDE: Blush card backgrounds === */
-.bg-white {
-  background-color: var(--pink-blush) !important;
-}
-
-.bg-gray-50 {
-  background-color: var(--cream-light) !important;
-}
 
 /* Pink accent overrides */
 .text-pink-600 {
@@ -71,7 +218,17 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(233,30,99,0.15); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(233,30,99,0.3); }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 30, 99, 0.2) transparent;
+  overscroll-behavior: contain;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(200, 200, 200, 0.4); border-radius: 9999px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(233, 30, 99, 0.4); }
+
 
 /* --- Selection --- */
 ::selection {
@@ -154,37 +311,3 @@ body {
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* --- Admin Dark Theme --- */
-.admin-dark-theme {
-  background-color: #111111 !important;
-  color: #e5e7eb !important;
-}
-.admin-dark-theme header,
-.admin-dark-theme main { background-color: #111111 !important; }
-.admin-dark-theme .bg-\[\#f8f9fa\],
-.admin-dark-theme .bg-\[\#FAFAFA\] { background-color: #111111 !important; }
-.admin-dark-theme .bg-white {
-  background-color: #1c1c1e !important;
-  border-color: #2c2c2e !important;
-}
-.admin-dark-theme .bg-gray-50 { background-color: #2a2a2c !important; }
-.admin-dark-theme .bg-gray-100,
-.admin-dark-theme .bg-gray-200 { background-color: #3a3a3c !important; }
-.admin-dark-theme .border-gray-50,
-.admin-dark-theme .border-gray-100,
-.admin-dark-theme .border-gray-200 { border-color: #2c2c2e !important; }
-.admin-dark-theme .text-gray-900 { color: #f9fafb !important; }
-.admin-dark-theme .text-gray-800 { color: #f3f4f6 !important; }
-.admin-dark-theme .text-gray-700 { color: #e5e7eb !important; }
-.admin-dark-theme .text-gray-600 { color: #d1d5db !important; }
-.admin-dark-theme .text-gray-500 { color: #9ca3af !important; }
-.admin-dark-theme .text-gray-400 { color: #6b7280 !important; }
-.admin-dark-theme .text-pink-600 { color: #f472b6 !important; }
-.admin-dark-theme .text-pink-500 { color: #ec4899 !important; }
-.admin-dark-theme table tbody tr:hover { background-color: #242426 !important; }
-.admin-dark-theme .shadow-sm,
-.admin-dark-theme .shadow-md,
-.admin-dark-theme .shadow-lg,
-.admin-dark-theme .shadow-xl {
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4) !important;
-}

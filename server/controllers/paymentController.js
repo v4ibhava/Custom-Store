@@ -2,17 +2,30 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Orders = require('../models/orderModel');
 const Payments = require('../models/paymentModel');
+const { getStoreSettings } = require('./settingsController');
 
-const razorpayInstance = new Razorpay({
-	key_id: process.env.RAZORPAY_KEY_ID,
-	key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+const getRazorpayInstance = async () => {
+	const settings = await getStoreSettings();
+	const key_id = settings.razorpayKeyId || process.env.RAZORPAY_KEY_ID;
+	const key_secret = settings.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET;
+
+	if (!key_id || !key_secret) {
+		throw new Error('Razorpay API keys are not configured. Please set them in Admin Store Settings.');
+	}
+
+	return {
+		instance: new Razorpay({ key_id, key_secret }),
+		key_id,
+		key_secret
+	};
+};
 
 const paymentController = {
-	getPublicKey: (req, res) => {
+	getPublicKey: async (req, res) => {
 		try {
-			const key = process.env.RAZORPAY_KEY_ID || '';
-			if (!key) return res.status(500).json({ msg: 'Razorpay key is not configured on the server' });
+			const settings = await getStoreSettings();
+			const key = settings.razorpayKeyId || process.env.RAZORPAY_KEY_ID || '';
+			if (!key) return res.status(500).json({ msg: 'Razorpay Key ID is not configured on the server.' });
 			return res.json({ key });
 		} catch (err) {
 			return res.status(500).json({ msg: err.message });
@@ -25,8 +38,10 @@ const paymentController = {
 				return res.status(400).json({ msg: 'amount, items and address are required' });
 			}
 
+			const { instance } = await getRazorpayInstance();
+
 			const options = { amount: Math.round(amount * 100), currency, receipt };
-			const razorpayOrder = await razorpayInstance.orders.create(options);
+			const razorpayOrder = await instance.orders.create(options);
 
 			const newOrder = await Orders.create({
 				user: req.user.id,
@@ -60,9 +75,11 @@ const paymentController = {
 				return res.status(400).json({ msg: 'Missing Razorpay verification fields' });
 			}
 
+			const { instance, key_secret } = await getRazorpayInstance();
+
 			const signatureData = razorpay_order_id + '|' + razorpay_payment_id;
 			const expectedSignature = crypto
-				.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+				.createHmac('sha256', key_secret)
 				.update(signatureData)
 				.digest('hex');
 
@@ -76,7 +93,7 @@ const paymentController = {
 			// Fetch payment details to get mode and status
 			let paymentInfo = null;
 			try {
-				paymentInfo = await razorpayInstance.payments.fetch(razorpay_payment_id);
+				paymentInfo = await instance.payments.fetch(razorpay_payment_id);
 			} catch (_) {}
 
 			const paymentMode = paymentInfo?.method;
@@ -120,5 +137,3 @@ const paymentController = {
 };
 
 module.exports = paymentController;
-
-

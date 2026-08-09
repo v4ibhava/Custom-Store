@@ -2,9 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cake Avenue</title>
     <link rel="icon" href="./src/images/icon.png" type="image/x-icon">
+    <script>
+      (function() {
+        try {
+          var cached = JSON.parse(localStorage.getItem('ca_visual'));
+          if (cached) {
+            var root = document.documentElement;
+            if (cached.colorTheme) root.setAttribute('data-theme', cached.colorTheme);
+            if (cached.uiStyle) root.setAttribute('data-style', cached.uiStyle);
+            if (cached.darkMode !== undefined) root.setAttribute('data-mode', cached.darkMode ? 'dark' : 'light');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

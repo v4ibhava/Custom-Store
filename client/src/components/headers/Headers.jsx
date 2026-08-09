@@ -12,6 +12,16 @@ export default function Headers() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  const [settings] = state?.settingsAPI?.settings || [{}];
+  const storeName = settings?.storeName || 'Cake Avenue';
+
+  React.useEffect(() => {
+    if (storeName) {
+      document.title = storeName;
+    }
+  }, [storeName]);
+
   const {
     isLogged = [false, () => { }],
     isAdmin = [false, () => { }],
@@ -34,54 +44,31 @@ export default function Headers() {
     }
   };
 
-  // Admin Header
+  // Admin: hide header entirely on admin panel routes
+  const adminRoutes = ['/', '/profile', '/AdminProfile'];
+  const isAdminRoute = adminRoutes.includes(location.pathname) || location.pathname.startsWith('/admin/');
+  if (admin && isAdminRoute) {
+    return null;
+  }
+
+  // Admin Preview Bar — show only on customer store routes (e.g. /shop, /cart, /product/*)
   if (admin) {
     return (
-      <nav className="sticky top-0 z-50 bg-white shadow-sm px-3 sm:px-4 lg:px-8 border-b border-gray-100">
-        <div className="flex items-center justify-between h-14 sm:h-16">
-          <Link to="/" className="text-lg sm:text-2xl font-extrabold text-pink-600 tracking-tight shrink-0">
-            Cake Avenue
-          </Link>
-          <div className="hidden sm:flex flex-1 max-w-2xl mx-4">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Search orders, products, or users..."
-                className="w-full h-9 pl-10 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 text-sm transition-all"
-                onChange={handleSearch}
-              />
-              <HiMiniMagnifyingGlass className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 size-4" />
-            </div>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-3">
-            <button className="sm:hidden p-2.5 rounded-xl hover:bg-gray-100 transition-colors" onClick={() => setMobileSearchOpen(!mobileSearchOpen)}>
-              {mobileSearchOpen ? <FiX size={20} className="text-gray-500" /> : <HiMiniMagnifyingGlass size={20} className="text-gray-500" />}
-            </button>
-            <button className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors relative">
-              <BiBell size={20} className="text-gray-500" />
-            </button>
-            <Link to="/AdminProfile" className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors">
-              <FaUser size={18} className="text-gray-500" />
-            </Link>
-          </div>
-        </div>
-        {mobileSearchOpen && (
-          <div className="sm:hidden pb-3 animate-fade-in-up">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search orders, products, or users..."
-                className="w-full h-10 pl-10 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 text-sm"
-                onChange={handleSearch}
-                autoFocus
-              />
-              <HiMiniMagnifyingGlass className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 size-4" />
-            </div>
-          </div>
-        )}
-      </nav>
+      <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-gray-900 text-white text-sm font-bold shadow-lg">
+        <span className="flex items-center gap-2 text-gray-300">
+          <FiHome size={14} /> Previewing customer store as admin
+        </span>
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-4 py-1.5 bg-white text-gray-900 rounded-lg font-bold text-xs hover:bg-gray-100 transition-all"
+        >
+          ← Back to Admin Panel
+        </Link>
+      </div>
     );
   }
+
+
 
   // User Header
   return (
@@ -90,14 +77,17 @@ export default function Headers() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12 sm:h-14">
             <Link to="/" className="text-lg sm:text-xl font-extrabold text-pink-600 tracking-tight shrink-0">
-              Cake Avenue
+              {storeName}
             </Link>
+
 
             {/* Desktop Search */}
             <div className="hidden md:flex flex-1 max-w-xl mx-6 relative">
               <input
                 type="text"
-                placeholder="Craving cake? Search here..."
+                placeholder={storeName ? `Search in ${storeName}...` : "Search products..."}
+
+
                 className="peer w-full h-9 border border-pink-100 rounded-xl pl-10 pr-4 bg-pink-50/30 focus:outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all text-sm placeholder-pink-300"
                 onChange={handleSearch}
               />

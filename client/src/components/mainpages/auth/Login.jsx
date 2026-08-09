@@ -13,6 +13,9 @@ function Login({ setEmail: setParentEmail }) {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const state = useContext(GlobalState);
+    const [settings] = state?.settingsAPI?.settings || [{}];
+    const storeName = settings?.storeName || 'Cake Avenue';
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -130,9 +133,10 @@ function Login({ setEmail: setParentEmail }) {
 
                         <div className="mt-5 text-center pt-4 border-t border-pink-50">
                             <p className="text-xs text-gray-500">
-                                New to Cake Avenue?{' '}
+                                New to {storeName}?{' '}
                                 <Link to="/signup" className="font-extrabold text-pink-600 hover:text-pink-700">Create Account</Link>
                             </p>
+
                         </div>
                     </div>
                 </div>

@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import OTPInput from './OTPInput';
 import { FiMail, FiArrowLeft, FiShield, FiAlertTriangle } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { GlobalState } from '../../../GlobalState';
 
 function VerifyOTP({ email }) {
+    const state = useContext(GlobalState);
+    const [settings] = state?.settingsAPI?.settings || [{}];
+    const storeName = settings?.storeName || 'Cake Avenue';
+
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -78,7 +83,8 @@ function VerifyOTP({ email }) {
 
                 <p className="text-center mt-4 text-[10px] text-gray-400 font-medium tracking-wide flex items-center justify-center gap-1.5">
                     <FiMail className="size-3" />
-                    SECURE VERIFICATION BY CAKE AVENUE
+                    SECURE VERIFICATION BY {storeName.toUpperCase()}
+
                 </p>
             </motion.div>
         </div>

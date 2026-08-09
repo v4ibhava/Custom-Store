@@ -1,18 +1,27 @@
-import { useState, useEffect } from "react";
-import categories from "../data/CategoryList";
+import { useState, useEffect, useCallback } from "react";
+import { categoryService } from "../services";
 
 const CategoryAPI = () => {
   const [categoriesList, setCategoriesList] = useState([]);
 
-  useEffect(() => {
-    // Using the predefined categories instead of fetching
-    setCategoriesList(categories);
+  const getCategories = useCallback(async () => {
+    try {
+      const data = await categoryService.getCategories();
+      setCategoriesList(data || []);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
   }, []);
+
+  useEffect(() => {
+    getCategories();
+  }, [getCategories]);
 
   return {
     categories: [categoriesList, setCategoriesList],
-    getCategories: () => setCategoriesList(categories)
+    getCategories
   };
 };
 
 export default CategoryAPI;
+
