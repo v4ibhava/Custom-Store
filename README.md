@@ -1,67 +1,78 @@
-# Cake Avenue — Full-Stack D2C E-Commerce & Bakery Platform
+# Custom Store — Multi-Sector D2C E-Commerce & Retail Platform
 
-> A white-label D2C E-Commerce platform built with React 19, Vite, Node.js, Express, MongoDB, Razorpay, and Cloudinary. Designed for bakeries, confectionery shops, and retail brands requiring a customizable storefront and centralized administration portal.
+> A white-label, multi-sector D2C E-Commerce platform built with React 19, Vite, Node.js, Express, MongoDB, Razorpay, and Cloudinary. Engineered to empower D2C brands, boutique retailers, food merchants, and independent entrepreneurs with zero-code storefront customization, instant visual styling, and centralized store administration.
 
 ---
 
-## Target Audience
+## Target Audience & Industry Use Cases
 
-Cake Avenue is engineered to serve three primary target groups:
+Custom Store is designed as a modular, adaptable e-commerce foundation for a wide range of retail sectors and user personas:
 
-### 1. Bakeries & Confectionery Businesses
-- **Custom Product Management**: Support for multi-variant products including flavors, weights, and custom messages.
-- **Store Location & Delivery**: Display physical store locations with dynamic Google Maps integration for customer pick-ups and local deliveries.
-- **Promotional Campaigns**: Create percentage and fixed-discount coupons with expiration controls and date pickers that prevent selecting past dates.
 
-### 2. D2C Brands & Small Business Merchants
-- **Zero-Code Store Customization**: Modify store branding (Store Name, Tagline, Support Phone, Support Email, Physical Address, Currency Symbol) directly from the Admin System Settings UI without code edits.
-- **3-Axis Visual Style Customization**: Independently select store accent colors (Blush Pink, Ocean Blue, Emerald Green), shape language (Curvy vs Edgy), and dark mode toggle.
-- **Dynamic Brand Initials Generator**: Automatically generates logo badges across customer views based on the configured store name.
-- **Cloud Media Storage Control**: Configure Cloudinary API credentials in the Admin UI with live storage usage metrics and catalog asset analytics.
+### 1. D2C Brands & Online Retail Merchants
+- **Custom Product Catalogs**: Multi-variant SKU support for sizing, colors, flavors, weights, and custom engraved/written product messages.
+- **Zero-Code Branding**: Instantly update Store Name, Tagline, Support Phone, Support Email, Physical Address, and Currency Symbol from the Admin UI without modifying code.
+- **3-Axis Visual Style Customization**: Dynamically select store accent color palettes (Blush Pink, Ocean Blue, Emerald Green), UI shape language (Curvy vs. Edgy), and dark mode persistence.
+- **Cloud Media Storage Controls**: Manage Cloudinary API keys, upload target folders, and track cloud storage usage metrics directly in the system settings panel.
 
-### 3. Modern Online Shoppers
-- **Responsive Shopping Experience**: High-speed Vite and React frontend featuring micro-animations and clean UI design.
-- **Checkout Flexibility**: Integrated support for Razorpay Online Payments, Cash on Delivery (COD), address book management, and wishlist tracking.
+### 2. Food, Beverage & Perishable Goods Retailers
+- **Bakeries, Confectioneries & Pastry Shops**: Specialty ordering with flavor selection, weight options, and custom message badges.
+- **Cafes, Cloud Kitchens & Gourmet Delis**: Local delivery fees, minimum order thresholds, and free delivery qualification rules.
+- **Promotional Marketing Campaigns**: Create percentage-based or fixed-amount discount coupons with date pickers that prevent past date selection.
+
+### 3. Local & Omni-Channel Physical Businesses
+- **Boutique Shops & Artisanal Crafters**: Seamless transition from offline store to online ordering system.
+- **Google Maps Store Location Integration**: Display store address with customizable one-click Google Maps location buttons for in-person customer pick-ups and local deliveries.
+- **Flexible Payment Methods**: Integrated support for Razorpay online digital payments and Cash on Delivery (COD).
+
+### 4. Independent Entrepreneurs & Small Business Owners
+- **Turnkey Setup**: Out-of-the-box authentication, user roles (Customer vs. Admin), address book management, product reviews moderation, and live sales reports.
+- **Admin Store Preview Banner**: Slim floating toolbar enabling store administrators to preview the live customer storefront and switch back to the admin dashboard with one click.
+
+### 5. Modern End-Consumers & Shoppers
+- **Responsive Shopping Experience**: Fast, lightweight Vite and React 19 frontend featuring micro-animations, product search, wishlists, and order history tracking.
 
 ---
 
 ## Key Features
 
 ### Customer Storefront
-- **Dynamic Branding**: Header, footer, document titles, and authentication screens automatically reflect configured store settings.
-- **Instant Dark Mode & Visual Styling**: Instant pre-render visual settings restore via `localStorage` cache prevents dark mode flashing on page refresh.
-- **Product Catalog & Search**: Real-time product search, category filtering, and price range controls.
-- **Cart & Wishlist**: Persistent cart state, subtotal calculation, and wishlist management.
-- **Checkout Integration**: Native integration with Razorpay Payment Gateway and Cash on Delivery (COD).
-- **User Profile & Addresses**: Address book management, past order history, and review submissions.
-- **Store Location Link**: One-click navigation linking directly to the physical store location.
-- **Admin Store Preview Banner**: Slim floating navigation bar for logged-in admins to easily navigate between the customer storefront preview and the admin dashboard.
+- **Dynamic Store Branding**: Header, footer, page titles, and authentication views instantly reflect configured store settings.
+- **Instant Pre-Render Visual Styling**: Persistent light/dark mode and visual presets restore before DOM hydration to prevent UI flashing on refresh.
+- **Product Search & Catalog**: Real-time search indexing, category filtering, and price range sorting.
+- **Cart & Wishlist**: Persistent cart state, subtotal calculations, and wishlist item management.
+- **Multi-Gateway Checkout**: Razorpay online payment processing and Cash on Delivery (COD) switches.
+- **Customer Account Management**: Saved shipping address book, past order history, and review submissions.
+- **Store Location Link**: Integrated physical store address with interactive Google Maps navigation links.
+- **Admin Store Preview Banner**: Floating top bar visible to logged-in admins to easily toggle between customer preview mode and admin controls.
 
 ### Admin Management Portal
-- **Independent Dual Scroll Layout**: Isolated smooth scrolling containers for the sidebar and main content area to prevent layout overflow.
-- **Overview Dashboard**: High-level sales summaries, product counts, and recent order feeds.
-- **Catalog & Orders Management**:
-  - **Orders**: Order status updates (Pending, Processing, Delivered, Cancelled) and customer details.
+- **Independent Dual Scroll Layout**: Isolated smooth scrolling containers for the sidebar menu and main workspace area to prevent layout overflow.
+- **Overview Dashboard**: High-level revenue summaries, product catalog totals, and real-time order feeds.
+- **Catalog & Inventory Management**:
+  - **Orders**: Order status lifecycle updates (Pending, Processing, Delivered, Cancelled) and customer details.
   - **Products**: Multi-image uploads, pricing, stock levels, and category assignments.
   - **Categories**: Dynamic category management backed by MongoDB ObjectIds.
 - **Marketing & Feedback**:
   - **Coupons**: Percentage and fixed discount codes with date validation.
-  - **Reviews**: Moderation and admin replies to customer reviews.
+  - **Reviews**: Customer review moderation and admin reply management.
 - **System Configuration**:
-  - **Appearance & Branding**: Store Name, Tagline, Phone, Email, Address, Google Maps URL, 3 Accent Color Themes, Curvy/Edgy UI Style, and Dark Mode toggle.
+  - **Branding & Location**: Store Name, Tagline, Phone, Email, Address, Google Maps URL, and Button text.
+  - **Visual Themes**: 3 Light Accent Color Themes (Blush Pink, Ocean Blue, Emerald Green), UI Style (Curvy vs. Edgy), and Dark Mode toggle.
   - **Payment Gateways**: Razorpay Key ID/Secret toggles and COD switches.
-  - **Media Storage**: Cloudinary API configuration with live asset analytics.
+  - **Media Storage**: Cloudinary API configuration with live asset metrics.
 
 ---
 
 ## Visual Styling Engine (3 Independent Axes)
 
-Cake Avenue includes a modular visual styling system. Each axis operates independently:
+Custom Store includes a modular visual styling system where each axis operates independently:
+
 
 | Axis | Options | Description |
 | :--- | :--- | :--- |
 | **Color Theme** | `blush` / `ocean` / `emerald` | Light-mode accent color palettes (Blush Pink, Ocean Blue, Emerald Green). |
-| **UI Style** | `curvy` / `edgy` | Shape language controls (`curvy` for soft rounded pills, `edgy` for sharp geometric corners). |
+| **UI Style** | `curvy` / `edgy` | Shape language controls (`curvy` for soft rounded shapes, `edgy` for sharp geometric corners). |
 | **Dark Mode** | `true` / `false` | Full dark background theme toggle, cached in `localStorage` for instant page loads. |
 
 ---
